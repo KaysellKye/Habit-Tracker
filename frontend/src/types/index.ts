@@ -1,0 +1,66 @@
+export type Priority = 'Urgent' | 'High' | 'Medium' | 'Low';
+
+export type Category = 'Kerja' | 'Produktif' | 'Hiburan';
+
+export interface Subtask {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+export interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  priority: Priority;
+  category: Category;
+  dueDate?: string;
+  dueTime?: string;
+  timeRange?: string;
+  isOverdue?: boolean;
+  isGoogleSync?: boolean;
+  subtasks: Subtask[];
+  notes?: string;
+  dateStr?: string;
+}
+
+export type TimelineType = 'focus' | 'gmeet' | 'break' | 'conflict';
+
+export interface TimelineItem {
+  id: string;
+  startTime: string;
+  endTime: string;
+  type: TimelineType;
+  badgeText: string;
+  title: string;
+  subtitle: string;
+  conflictDetails?: string;
+  isActionable?: boolean;
+  color?: 'blue' | 'amber' | 'emerald' | 'purple' | 'red' | 'slate';
+}
+
+export interface UpcomingTaskItem {
+  id: string;
+  title: string;
+  category: Category;
+  timeStr: string;
+  iconType: 'school' | 'shopping' | 'work';
+}
+
+export interface WeekDay {
+  dayName: string;
+  dayNumber: number;
+  dateStr: string;
+  isToday: boolean;
+  hasTasks?: boolean;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  username: string;
+  email: string;
+  avatarUrl: string;
+  streakCount: number;
+  createdAt?: string;
+}
