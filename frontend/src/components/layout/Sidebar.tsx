@@ -11,9 +11,12 @@ import {
   RefreshCw,
   X,
   Layers,
-  Sparkles
+  Sparkles,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { Category, UserProfile } from '../../types';
+import { useTheme } from '../../context/ThemeContext';
 
 interface SidebarProps {
   activeTab: string;
@@ -46,6 +49,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAuthModal,
   onOpenEditProfile,
 }) => {
+  const { isDark, toggleTheme } = useTheme();
+
   const navItems = [
     {
       id: 'hari-ini',
@@ -58,7 +63,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Semua Tugas',
       icon: CheckCircle2,
       badge: taskCounts.overdue > 0 ? `${taskCounts.overdue} Tertunda` : undefined,
-      badgeColor: 'bg-red-50 text-red-600 border border-red-200',
+      badgeColor: 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50',
     },
     {
       id: 'kalender',
@@ -78,25 +83,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
   ];
 
   const categories: { id: Category; label: string; color: string; dotColor: string }[] = [
-    { id: 'Kerja', label: 'Kerja', color: 'text-amber-600', dotColor: 'bg-amber-500' },
-    { id: 'Produktif', label: 'Produktif', color: 'text-blue-600', dotColor: 'bg-blue-600' },
-    { id: 'Hiburan', label: 'Hiburan', color: 'text-emerald-600', dotColor: 'bg-emerald-500' },
+    { id: 'Kerja', label: 'Kerja', color: 'text-amber-600 dark:text-amber-400', dotColor: 'bg-amber-500' },
+    { id: 'Produktif', label: 'Produktif', color: 'text-blue-600 dark:text-blue-400', dotColor: 'bg-blue-600' },
+    { id: 'Hiburan', label: 'Hiburan', color: 'text-emerald-600 dark:text-emerald-400', dotColor: 'bg-emerald-500' },
   ];
 
   const sidebarContent = (
-    <div className="flex flex-col h-full justify-between p-4">
+    <div className="flex flex-col h-full justify-between p-4 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors">
       <div className="flex flex-col gap-6">
         {/* Mobile Header in drawer */}
-        <div className="flex items-center justify-between md:hidden pb-2 border-b border-slate-100">
+        <div className="flex items-center justify-between md:hidden pb-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
               <Sparkles className="w-4 h-4" />
             </div>
-            <span className="font-bold text-slate-900">Habit Tracker</span>
+            <span className="font-bold text-slate-900 dark:text-white">Habit Tracker</span>
           </div>
           <button
             onClick={onCloseMobile}
-            className="p-1.5 rounded-lg text-slate-500 hover:bg-slate-100"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -116,7 +121,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {/* Navigation Links */}
         <nav className="flex flex-col gap-1">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 px-3 mb-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 px-3 mb-1">
             Menu Utama
           </span>
           {navItems.map((item) => {
@@ -131,14 +136,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 }}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
                   isActive
-                    ? 'bg-blue-50 text-blue-700 font-semibold shadow-2xs'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/70'
+                    ? 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-semibold shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100/70 dark:hover:bg-slate-800/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={`w-4 h-4 transition-colors ${
-                      isActive ? 'text-blue-600' : 'text-slate-400'
+                      isActive ? 'text-blue-600 dark:text-blue-400' : 'text-slate-400 dark:text-slate-500'
                     }`}
                   />
                   <span>{item.label}</span>
@@ -146,7 +151,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {item.badge && (
                   <span
                     className={`text-[11px] font-mono px-2 py-0.5 rounded-full ${
-                      item.badgeColor || 'bg-slate-100 text-slate-600'
+                      item.badgeColor || 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                     }`}
                   >
                     {item.badge}
@@ -158,15 +163,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         {/* Category Filters */}
-        <div className="flex flex-col gap-1 pt-2 border-t border-slate-100">
+        <div className="flex flex-col gap-1 pt-2 border-t border-slate-100 dark:border-slate-800">
           <div className="flex items-center justify-between px-3 mb-1">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               Kategori
             </span>
             {selectedCategory !== 'all' && (
               <button
                 onClick={() => onSelectCategory('all')}
-                className="text-[11px] text-blue-600 hover:underline"
+                className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
               >
                 Reset
               </button>
@@ -177,15 +182,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => onSelectCategory('all')}
             className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
               selectedCategory === 'all'
-                ? 'bg-slate-100 text-slate-900 font-semibold'
-                : 'text-slate-600 hover:bg-slate-50'
+                ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold'
+                : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
             <div className="flex items-center gap-2.5">
               <Layers className="w-3.5 h-3.5 text-slate-400" />
               <span>Semua Kategori</span>
             </div>
-            {selectedCategory === 'all' && <Check className="w-3.5 h-3.5 text-blue-600" />}
+            {selectedCategory === 'all' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
 
           {categories.map((cat) => (
@@ -194,26 +199,44 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={() => onSelectCategory(cat.id)}
               className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
                 selectedCategory === cat.id
-                  ? 'bg-slate-100 text-slate-900 font-semibold'
-                  : 'text-slate-600 hover:bg-slate-50'
+                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold'
+                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <span className={`w-2 h-2 rounded-full ${cat.dotColor}`} />
                 <span>{cat.label}</span>
               </div>
-              {selectedCategory === cat.id && <Check className="w-3.5 h-3.5 text-blue-600" />}
+              {selectedCategory === cat.id && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
             </button>
           ))}
         </div>
       </div>
 
       {/* Footer Info: User Account & Streak */}
-      <div className="flex flex-col gap-3 pt-3 border-t border-slate-100">
+      <div className="flex flex-col gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+        {/* Quick Theme Toggle Pill in Sidebar */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200/70 dark:border-slate-700/60 flex items-center justify-between transition-colors text-xs text-slate-700 dark:text-slate-300"
+        >
+          <div className="flex items-center gap-2">
+            {isDark ? (
+              <Moon className="w-4 h-4 text-purple-400" />
+            ) : (
+              <Sun className="w-4 h-4 text-amber-500" />
+            )}
+            <span className="font-medium">{isDark ? 'Mode Gelap' : 'Mode Terang'}</span>
+          </div>
+          <span className="text-[10px] font-semibold text-blue-600 dark:text-blue-400">
+            Ganti
+          </span>
+        </button>
+
         {currentUser ? (
           <div
             onClick={onOpenEditProfile}
-            className="p-2.5 bg-slate-50 hover:bg-slate-100 rounded-xl border border-slate-200/70 flex items-center justify-between cursor-pointer transition-colors group"
+            className="p-2.5 bg-slate-50 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between cursor-pointer transition-colors group"
             title="Klik untuk ubah nama atau foto profil"
           >
             <div className="flex items-center gap-2.5 min-w-0">
@@ -223,26 +246,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 className="w-8 h-8 rounded-full object-cover ring-2 ring-blue-500/20 flex-shrink-0"
               />
               <div className="truncate">
-                <p className="text-xs font-bold text-slate-900 truncate group-hover:text-blue-600 transition-colors">
+                <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {currentUser.name}
                 </p>
-                <p className="text-[10px] font-mono text-slate-500 truncate">
+                <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
                   @{currentUser.username}
                 </p>
               </div>
             </div>
-            <span className="text-[10px] text-blue-600 font-medium group-hover:underline flex-shrink-0">
+            <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium group-hover:underline flex-shrink-0">
               Edit
             </span>
           </div>
         ) : (
           <button
             onClick={onOpenAuthModal}
-            className="p-2.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded-xl border border-blue-200/80 flex items-center justify-between transition-colors text-left"
+            className="p-2.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-xl border border-blue-200/80 dark:border-blue-800 flex items-center justify-between transition-colors text-left"
           >
             <div>
               <p className="text-xs font-bold">Sinkronisasi Akun</p>
-              <p className="text-[10px] text-blue-600/80">Masuk agar data tidak hilang</p>
+              <p className="text-[10px] text-blue-600/80 dark:text-blue-300/80">Masuk agar data tidak hilang</p>
             </div>
             <span className="text-xs font-bold bg-blue-600 text-white px-2 py-0.5 rounded-lg">
               Masuk
@@ -251,27 +274,27 @@ export const Sidebar: React.FC<SidebarProps> = ({
         )}
 
         {/* Streak Card */}
-        <div className="p-2.5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-xl border border-amber-200/60 flex items-center gap-2.5">
+        <div className="p-2.5 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 rounded-xl border border-amber-200/60 dark:border-amber-900/40 flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-lg bg-orange-500/10 flex items-center justify-center text-base flex-shrink-0">
             🔥
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-xs font-bold text-amber-900">
+            <span className="text-xs font-bold text-amber-900 dark:text-amber-200">
               {currentUser?.streakCount || 5} Hari Streak
             </span>
-            <span className="text-[10px] text-amber-700/80 truncate">
+            <span className="text-[10px] text-amber-700/80 dark:text-amber-300/80 truncate">
               Akses dari HP & perangkat lain
             </span>
           </div>
         </div>
 
         {/* Google Calendar status */}
-        <div className="flex items-center justify-between px-2 text-[11px] text-slate-500">
-          <div className="flex items-center gap-1.5 text-amber-600 font-medium">
-            <RefreshCw className="w-3 h-3 animate-spin text-amber-600" />
+        <div className="flex items-center justify-between px-2 text-[11px] text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-1.5 text-amber-600 dark:text-amber-400 font-medium">
+            <RefreshCw className="w-3 h-3 animate-spin text-amber-600 dark:text-amber-400" />
             <span>Google Calendar Aktif</span>
           </div>
-          <span className="text-slate-400">Sync: 1m lalu</span>
+          <span className="text-slate-400 dark:text-slate-500">Sync: 1m lalu</span>
         </div>
       </div>
     </div>
@@ -280,7 +303,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="hidden md:flex flex-col w-64 fixed top-16 bottom-0 left-0 bg-white border-r border-slate-200/80 z-30 overflow-y-auto">
+      <aside className="hidden md:flex flex-col w-64 fixed top-16 bottom-0 left-0 bg-white dark:bg-slate-900 border-r border-slate-200/80 dark:border-slate-800 z-30 overflow-y-auto transition-colors">
         {sidebarContent}
       </aside>
 
@@ -288,10 +311,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
       {isOpenMobile && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
             onClick={onCloseMobile}
           />
-          <div className="relative w-4/5 max-w-xs bg-white h-full shadow-2xl z-10 overflow-y-auto">
+          <div className="relative w-4/5 max-w-xs bg-white dark:bg-slate-900 h-full shadow-2xl z-10 overflow-y-auto">
             {sidebarContent}
           </div>
         </div>

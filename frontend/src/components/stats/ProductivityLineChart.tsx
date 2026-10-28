@@ -124,19 +124,19 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
   `;
 
   return (
-    <div className="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-card flex flex-col gap-6">
+    <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-100 dark:border-slate-800 shadow-card flex flex-col gap-6">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
               <TrendingUp className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900">
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
                 Grafik Tren Produktivitas
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Laju penyelesaian tugas harian sepanjang pekan
               </p>
             </div>
@@ -144,14 +144,14 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
         </div>
 
         {/* Range Tabs */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl self-start sm:self-auto">
+        <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-auto">
           <button
             type="button"
             onClick={() => setTimeRange('week')}
             className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
               timeRange === 'week'
-                ? 'bg-white text-blue-600 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-2xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             Pekan Ini (7 Hari)
@@ -161,8 +161,8 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
             onClick={() => setTimeRange('trend')}
             className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
               timeRange === 'trend'
-                ? 'bg-white text-blue-600 shadow-2xs font-bold'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-2xs font-bold'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
             }`}
           >
             Kumulatif
@@ -172,34 +172,34 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
 
       {/* Summary Highlight Metric Pills */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
-          <span className="text-[11px] text-slate-500 block font-medium">Total Selesai</span>
-          <p className="text-lg sm:text-xl font-bold font-mono text-slate-900 mt-0.5">
+        <div className="p-3 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Total Selesai</span>
+          <p className="text-lg sm:text-xl font-bold font-mono text-slate-900 dark:text-white mt-0.5">
             {totalCompleted}{' '}
-            <span className="text-xs font-normal text-slate-500">tugas</span>
+            <span className="text-xs font-normal text-slate-500 dark:text-slate-400">tugas</span>
           </p>
         </div>
 
-        <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
-          <span className="text-[11px] text-slate-500 block font-medium">Rata-rata Harian</span>
-          <p className="text-lg sm:text-xl font-bold font-mono text-blue-600 mt-0.5">
+        <div className="p-3 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Rata-rata Harian</span>
+          <p className="text-lg sm:text-xl font-bold font-mono text-blue-600 dark:text-blue-400 mt-0.5">
             {avgCompleted}{' '}
-            <span className="text-xs font-normal text-slate-500">tugas/hari</span>
+            <span className="text-xs font-normal text-slate-500 dark:text-slate-400">tugas/hari</span>
           </p>
         </div>
 
-        <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
-          <span className="text-[11px] text-slate-500 block font-medium">Hari Tersibuk</span>
-          <p className="text-lg sm:text-xl font-bold font-mono text-amber-600 mt-0.5">
+        <div className="p-3 bg-slate-50/80 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-800">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400 block font-medium">Hari Tersibuk</span>
+          <p className="text-lg sm:text-xl font-bold font-mono text-amber-600 dark:text-amber-400 mt-0.5">
             {peakDay.completed > 0 ? (
               <>
                 {peakDay.dayName}{' '}
-                <span className="text-xs font-normal text-slate-500">
+                <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
                   ({peakDay.completed} tuntas)
                 </span>
               </>
             ) : (
-              <span className="text-sm font-normal text-slate-400">Belum ada</span>
+              <span className="text-sm font-normal text-slate-400 dark:text-slate-500">Belum ada</span>
             )}
           </p>
         </div>
@@ -235,7 +235,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                   y1={y}
                   x2={svgWidth - paddingRight}
                   y2={y}
-                  stroke="#E2E8F0"
+                  className="stroke-slate-200 dark:stroke-slate-800"
                   strokeDasharray={val === 0 ? 'none' : '4 4'}
                   strokeWidth="1"
                 />
@@ -243,7 +243,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                   x={paddingLeft - 10}
                   y={y + 4}
                   textAnchor="end"
-                  fill="#94A3B8"
+                  className="fill-slate-400 dark:fill-slate-500"
                   fontSize="11"
                   fontFamily="JetBrains Mono, monospace"
                   fontWeight="600"
@@ -305,11 +305,10 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                   cx={pt.x}
                   cy={pt.y}
                   r={isHovered ? 8 : isToday ? 6 : 5}
-                  fill="#FFFFFF"
+                  className="fill-white dark:fill-slate-900"
                   stroke={isToday ? '#2563EB' : isHovered ? '#1D4ED8' : '#3B82F6'}
                   strokeWidth={isHovered ? 3.5 : isToday ? 3 : 2}
                   filter="url(#pointShadow)"
-                  className="transition-all duration-150"
                 />
 
                 {/* Inner center dot */}
@@ -325,9 +324,8 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                   x={pt.x}
                   y={paddingTop + chartHeight + 20}
                   textAnchor="middle"
-                  fill={isToday ? '#2563EB' : '#475569'}
+                  className={isToday ? 'fill-blue-600 dark:fill-blue-400 font-bold' : 'fill-slate-600 dark:fill-slate-400 font-medium'}
                   fontSize="12"
-                  fontWeight={isToday ? '700' : '500'}
                   fontFamily="Inter, sans-serif"
                 >
                   {pt.data.dayName}
@@ -336,7 +334,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                   x={pt.x}
                   y={paddingTop + chartHeight + 34}
                   textAnchor="middle"
-                  fill={isToday ? '#3B82F6' : '#94A3B8'}
+                  className={isToday ? 'fill-blue-500 dark:fill-blue-400' : 'fill-slate-400 dark:fill-slate-500'}
                   fontSize="10"
                   fontFamily="JetBrains Mono, monospace"
                   fontWeight="600"
@@ -365,11 +363,11 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
               }}
             >
               {/* Tooltip Card Box */}
-              <div className="bg-slate-900/95 backdrop-blur-xs text-white px-3 py-1.5 rounded-xl shadow-xl border border-slate-700/80 text-center whitespace-nowrap">
+              <div className="bg-slate-900/95 dark:bg-slate-800/95 backdrop-blur-xs text-white px-3 py-1.5 rounded-xl shadow-xl border border-slate-700/80 text-center whitespace-nowrap">
                 <span className="font-bold text-slate-100 text-[11px] block">
                   {pt.data.dayName}, {pt.data.dayNumber} Okt {pt.data.isToday ? '• Hari Ini' : ''}
                 </span>
-                <span className="text-[11px] font-semibold text-blue-300 font-mono mt-0.5 block">
+                <span className="text-[11px] font-semibold text-blue-300 dark:text-blue-400 font-mono mt-0.5 block">
                   {pt.data.completed > 0
                     ? `✓ ${pt.data.completed} tugas diselesaikan`
                     : 'Belum ada tugas selesai'}
@@ -380,8 +378,8 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
               <div
                 className={`w-0 h-0 border-x-4 border-x-transparent ${
                   isNearTop
-                    ? '-order-1 border-b-4 border-b-slate-900/95'
-                    : 'border-t-4 border-t-slate-900/95'
+                    ? '-order-1 border-b-4 border-b-slate-900/95 dark:border-b-slate-800/95'
+                    : 'border-t-4 border-t-slate-900/95 dark:border-t-slate-800/95'
                 }`}
               />
             </div>
@@ -390,19 +388,19 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
       </div>
 
       {/* Legend & Insights */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-slate-100 text-xs text-slate-500 gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-500 dark:text-slate-400 gap-2">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
             <span className="w-3 h-3 rounded-full bg-blue-600 inline-block" />
-            <span className="text-slate-700 font-medium">Tugas Diselesaikan</span>
+            <span className="text-slate-700 dark:text-slate-300 font-medium">Tugas Diselesaikan</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-1 bg-slate-300 rounded inline-block" />
-            <span className="text-slate-500">Target Kapasitas</span>
+            <span className="w-3 h-1 bg-slate-300 dark:bg-slate-700 rounded inline-block" />
+            <span className="text-slate-500 dark:text-slate-400">Target Kapasitas</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-1 text-emerald-600 font-semibold bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200/60 self-start sm:self-auto">
+        <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-full border border-emerald-200/60 dark:border-emerald-900/40 self-start sm:self-auto">
           <ArrowUpRight className="w-3.5 h-3.5" />
           <span>+18% lebih produktif dibandingkan pekan lalu</span>
         </div>

@@ -5,6 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/calendar-clock.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>Habit Tracker — Calm Productivity</title>
+    <script>
+      (function() {
+        try {
+          var saved = localStorage.getItem('habit_tracker_theme');
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (saved === 'dark' || (!saved && prefersDark) || (saved === 'system' && prefersDark)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (_) {}
+      })();
+    </script>
     <!-- Google Fonts: Inter & JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,7 +26,7 @@
       rel="stylesheet"
     />
   </head>
-  <body class="bg-[#FAFBFC] text-[#111827] font-sans antialiased selection:bg-blue-100 selection:text-blue-900">
+  <body class="bg-[#FAFBFC] dark:bg-[#0B0F17] text-[#111827] dark:text-[#F1F5F9] font-sans antialiased selection:bg-blue-100 dark:selection:bg-blue-900 selection:text-blue-900 dark:selection:text-blue-100">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

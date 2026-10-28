@@ -145,25 +145,25 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
       />
 
       {/* Modal Dialog */}
-      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 z-10 overflow-y-auto max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-6 z-10 overflow-y-auto max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400 flex items-center justify-center font-bold">
               <CalendarClock className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">
                 {initialBlock ? 'Ubah Blok Jadwal' : 'Tambah Blok Jadwal Baru'}
               </h3>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 Atur label & waktu aktivitas sesuka hati
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -173,7 +173,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
           {/* Judul Aktivitas */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Nama Aktivitas / Kegiatan *
             </label>
             <input
@@ -183,59 +183,59 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Mis. Desain UI Pitch Deck / Meeting Klien..."
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
             />
           </div>
 
           {/* Jam Mulai & Selesai */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Jam Mulai
               </label>
               <div className="relative">
-                <Clock className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                <Clock className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400 dark:text-slate-500" />
                 <input
                   type="text"
                   required
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
                   placeholder="09:00"
-                  className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Jam Selesai
               </label>
               <div className="relative">
-                <Clock className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400" />
+                <Clock className="w-3.5 h-3.5 absolute left-3 top-2.5 text-slate-400 dark:text-slate-500" />
                 <input
                   type="text"
                   required
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
                   placeholder="10:30"
-                  className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                  className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs font-mono font-bold focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
                 />
               </div>
             </div>
           </div>
 
           {/* Bagian Tipe / Label Jadwal (Bebas Diedit & Dihapus) */}
-          <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-200/70 flex flex-col gap-2.5">
+          <div className="p-3 bg-slate-50/80 dark:bg-slate-800/60 rounded-2xl border border-slate-200/70 dark:border-slate-700 flex flex-col gap-2.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <Tag className="w-3.5 h-3.5 text-purple-600" />
+              <label className="text-xs font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
+                <Tag className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
                 <span>Label Jadwal (Bisa Diatur Sesuka Hati)</span>
               </label>
 
               <button
                 type="button"
                 onClick={() => setShowAddPresetInput(!showAddPresetInput)}
-                className="text-[11px] font-semibold text-purple-600 hover:text-purple-700 flex items-center gap-1"
+                className="text-[11px] font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 flex items-center gap-1"
               >
                 <Plus className="w-3 h-3" />
                 <span>Buat Label Baru</span>
@@ -250,11 +250,11 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
                 value={badgeText}
                 onChange={(e) => setBadgeText(e.target.value.toUpperCase())}
                 placeholder="Ketik label jadwal bebas..."
-                className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-bold font-mono uppercase bg-white focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+                className="flex-1 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-bold font-mono uppercase bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
               />
 
               {/* Color Picker for Badge */}
-              <div className="flex items-center gap-1 bg-white p-1 rounded-xl border border-slate-200">
+              <div className="flex items-center gap-1 bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700">
                 {(['blue', 'amber', 'emerald', 'purple', 'red', 'slate'] as const).map((c) => {
                   const bgClass =
                     c === 'blue'
@@ -292,7 +292,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
                   value={newPresetInput}
                   onChange={(e) => setNewPresetInput(e.target.value)}
                   placeholder="Nama label baru (mis. GAMING, MEMBACA)..."
-                  className="flex-1 px-2.5 py-1 text-xs rounded-lg border border-purple-200 bg-white focus:outline-none"
+                  className="flex-1 px-2.5 py-1 text-xs rounded-lg border border-purple-200 dark:border-purple-800 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 focus:outline-none"
                 />
                 <button
                   type="button"
@@ -306,7 +306,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
 
             {/* Daftar Label Preset yang Bisa Dipilih & Dihapus */}
             <div>
-              <span className="text-[10px] text-slate-500 mb-1 block">
+              <span className="text-[10px] text-slate-500 dark:text-slate-400 mb-1 block">
                 Pilih atau hapus (✕) label yang ada:
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -319,7 +319,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
                       className={`group inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-bold cursor-pointer border transition-all ${
                         isSelected
                           ? 'bg-purple-600 text-white border-purple-600 shadow-2xs'
-                          : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300'
+                          : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600'
                       }`}
                     >
                       <span>{p.label}</span>
@@ -343,7 +343,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
 
           {/* Subtitle / Catatan Tambahan */}
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
               Catatan / Keterangan Waktu
             </label>
             <input
@@ -351,12 +351,12 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
               value={subtitle}
               onChange={(e) => setSubtitle(e.target.value)}
               placeholder="Mis. Durasi: 1j 30m / Recharging / Diskusi Online"
-              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
+              className="w-full px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500"
             />
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-3 border-t border-slate-100 mt-1">
+          <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800 mt-1">
             {initialBlock && onDelete ? (
               <button
                 type="button"
@@ -364,7 +364,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
                   onDelete(initialBlock.id);
                   onClose();
                 }}
-                className="py-2 px-3 text-red-600 hover:bg-red-50 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors"
+                className="py-2 px-3 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-xl text-xs font-semibold flex items-center gap-1 transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Hapus Blok</span>
@@ -377,7 +377,7 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="py-2 px-3.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition-colors"
+                className="py-2 px-3.5 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
               >
                 Batal
               </button>

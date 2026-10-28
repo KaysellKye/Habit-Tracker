@@ -151,15 +151,15 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
       </div>
 
       {/* 3. Ringkasan Mingguan Cepat (Mini Days Completion Badges) */}
-      <div className="bg-white rounded-2xl p-4 shadow-card border border-slate-100 flex flex-col gap-3">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-card border border-slate-100 dark:border-slate-800 flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-emerald-600" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
               Pencapaian Pekan Ini
             </h4>
           </div>
-          <span className="text-xs font-mono font-semibold text-blue-600">
+          <span className="text-xs font-mono font-semibold text-blue-600 dark:text-blue-400">
             Total {totalWeeklyDone} Tugas Selesai
           </span>
         </div>
@@ -173,17 +173,17 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
                 onClick={() => onSelectDate(stat.dateStr)}
                 className={`flex flex-col items-center py-2 px-1 rounded-xl transition-all ${
                   isSelected
-                    ? 'bg-blue-50 border-2 border-blue-500 shadow-xs'
-                    : 'bg-slate-50 hover:bg-slate-100 border border-transparent'
+                    ? 'bg-blue-50 dark:bg-blue-950/40 border-2 border-blue-500 shadow-xs'
+                    : 'bg-slate-50 dark:bg-slate-800/60 hover:bg-slate-100 dark:hover:bg-slate-800 border border-transparent'
                 }`}
               >
-                <span className="text-[10px] font-medium text-slate-500">
+                <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400">
                   {stat.dayName}
                 </span>
-                <span className="text-sm font-bold font-mono text-slate-800 mt-0.5">
+                <span className="text-sm font-bold font-mono text-slate-800 dark:text-slate-100 mt-0.5">
                   {stat.doneCount}
                 </span>
-                <span className="text-[9px] text-slate-400 font-medium">
+                <span className="text-[9px] text-slate-400 dark:text-slate-500 font-medium">
                   selesai
                 </span>
               </button>
@@ -196,27 +196,27 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <h3 className="text-sm sm:text-base font-bold text-slate-900">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <h3 className="text-sm sm:text-base font-bold text-slate-900 dark:text-white">
               Daftar Tugas Selesai ({completedCount})
             </h3>
           </div>
-          <span className="text-xs font-mono text-slate-400">
+          <span className="text-xs font-mono text-slate-400 dark:text-slate-500">
             {selectedDayObj.dayName}, {selectedDayObj.dayNumber} Okt
           </span>
         </div>
 
         {completedCount === 0 ? (
-          <div className="bg-white rounded-2xl p-8 border border-dashed border-slate-200 text-center flex flex-col items-center justify-center gap-2.5 shadow-2xs">
-            <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
+          <div className="bg-white dark:bg-slate-900 rounded-2xl p-8 border border-dashed border-slate-200 dark:border-slate-800 text-center flex flex-col items-center justify-center gap-2.5 shadow-2xs">
+            <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 flex items-center justify-center text-slate-400 dark:text-slate-500">
               <ListTodo className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-slate-800">
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
                 Belum ada tugas yang diselesaikan pada hari ini
               </p>
-              <p className="text-xs text-slate-400 mt-1 max-w-sm">
-                Tandai selesai tugas Anda pada menu <span className="font-semibold text-blue-600">Hari Ini</span> atau <span className="font-semibold text-blue-600">Semua Tugas</span> untuk mencatat pencapaian di sini.
+              <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-sm">
+                Tandai selesai tugas Anda pada menu <span className="font-semibold text-blue-600 dark:text-blue-400">Hari Ini</span> atau <span className="font-semibold text-blue-600 dark:text-blue-400">Semua Tugas</span> untuk mencatat pencapaian di sini.
               </p>
             </div>
           </div>
@@ -225,7 +225,7 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
             {completedTasks.map((task) => (
               <div
                 key={task.id}
-                className="bg-white rounded-2xl p-4 shadow-card border border-slate-100 flex items-center justify-between transition-all hover:shadow-cardHover"
+                className="bg-white dark:bg-slate-900 rounded-2xl p-4 shadow-card border border-slate-100 dark:border-slate-800 flex items-center justify-between transition-all hover:shadow-cardHover"
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <button
@@ -237,7 +237,7 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
                   </button>
 
                   <div className="truncate">
-                    <p className="text-sm font-semibold text-slate-900 truncate">
+                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
                       {task.title}
                     </p>
                     <div className="flex items-center gap-2 mt-1">
@@ -245,10 +245,10 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
                       <span
                         className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
                           task.category === 'Kerja'
-                            ? 'bg-amber-100 text-amber-900 border border-amber-200'
+                            ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-300 border border-amber-200 dark:border-amber-900/40'
                             : task.category === 'Produktif'
-                            ? 'bg-blue-100 text-blue-900 border border-blue-200'
-                            : 'bg-emerald-100 text-emerald-900 border border-emerald-200'
+                            ? 'bg-blue-100 dark:bg-blue-950/50 text-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-900/40'
+                            : 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/40'
                         }`}
                       >
                         {task.category}
@@ -256,7 +256,7 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
 
                       {/* Time */}
                       {task.timeRange && (
-                        <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
+                        <span className="text-[11px] font-mono text-slate-400 dark:text-slate-500 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {task.timeRange}
                         </span>
@@ -264,7 +264,7 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
 
                       {/* Subtask count */}
                       {task.subtasks.length > 0 && (
-                        <span className="text-[11px] font-mono text-emerald-600 font-medium">
+                        <span className="text-[11px] font-mono text-emerald-600 dark:text-emerald-400 font-medium">
                           {task.subtasks.filter((s) => s.completed).length}/
                           {task.subtasks.length} Subtask
                         </span>
@@ -273,7 +273,7 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
                   </div>
                 </div>
 
-                <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200/60 flex-shrink-0">
+                <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold rounded-full border border-emerald-200/60 dark:border-emerald-900/40 flex-shrink-0">
                   ✓ Selesai
                 </span>
               </div>

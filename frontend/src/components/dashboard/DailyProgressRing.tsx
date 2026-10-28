@@ -34,31 +34,31 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
       {/* Greeting & Date Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight flex items-center gap-1.5">
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
             <span>Selamat pagi, {userName}</span>
             <span className="inline-block animate-wiggle">👋</span>
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 flex items-center gap-1.5 mt-0.5">
-            <CalendarIcon className="w-3.5 h-3.5 text-blue-600" />
+          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
+            <CalendarIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
             <span>{currentDateText}</span>
           </p>
         </div>
 
         {/* Streak Pill */}
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-900 shadow-2xs border border-purple-200/50">
+        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 shadow-2xs border border-purple-200/50 dark:border-purple-800/50">
           <span className="text-xs">🔥</span>
           <span className="text-xs font-semibold tracking-normal">{streakCount} Hari Streak</span>
         </div>
       </div>
 
       {/* Daily Progress Summary Card */}
-      <div className="bg-white p-4 sm:p-5 rounded-2xl shadow-card border border-slate-100 flex items-center gap-4 transition-all hover:shadow-cardHover">
+      <div className="bg-white dark:bg-slate-900 p-4 sm:p-5 rounded-2xl shadow-card border border-slate-100 dark:border-slate-800 flex items-center gap-4 transition-all hover:shadow-cardHover">
         {/* Circular Progress Ring */}
         <div className="relative w-16 h-16 flex-shrink-0 flex items-center justify-center">
           <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 64 64">
             {/* Background track circle */}
             <circle
-              className="text-slate-100"
+              className="text-slate-100 dark:text-slate-800"
               cx="32"
               cy="32"
               fill="transparent"
@@ -68,7 +68,7 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
             />
             {/* Animated progress circle */}
             <circle
-              className="text-blue-600 transition-all duration-700 ease-out"
+              className="text-blue-600 dark:text-blue-500 transition-all duration-700 ease-out"
               cx="32"
               cy="32"
               fill="transparent"
@@ -80,7 +80,7 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
               strokeLinecap="round"
             />
           </svg>
-          <span className="absolute font-mono text-sm font-bold text-blue-600">
+          <span className="absolute font-mono text-sm font-bold text-blue-600 dark:text-blue-400">
             {percentage}%
           </span>
         </div>
@@ -88,24 +88,24 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
         {/* Detail Metric */}
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-sm font-semibold text-slate-900 truncate">
+            <span className="text-sm font-semibold text-slate-900 dark:text-white truncate">
               Target Produktivitas
             </span>
-            <span className="text-xs font-mono font-medium text-slate-500">
+            <span className="text-xs font-mono font-medium text-slate-500 dark:text-slate-400">
               {completedCount}/{totalCount} Selesai
             </span>
           </div>
 
-          <p className="text-xs text-slate-500 line-clamp-1">
+          <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
             {percentage >= 100
               ? '🎉 Luar biasa! Semua target hari ini telah selesai.'
               : `${totalCount - completedCount} blok fokus lagi untuk menyelesaikan rencana hari ini.`}
           </p>
 
           {/* Horizontal Micro Progress Bar */}
-          <div className="w-full bg-slate-100 rounded-full h-1.5 mt-2.5 overflow-hidden">
+          <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 mt-2.5 overflow-hidden">
             <div
-              className="bg-blue-600 h-full rounded-full transition-all duration-500"
+              className="bg-blue-600 dark:bg-blue-500 h-full rounded-full transition-all duration-500"
               style={{ width: `${Math.min(percentage, 100)}%` }}
             />
           </div>
@@ -114,17 +114,17 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
 
       {/* Quick Search / Command Input Bar */}
       <div className="relative flex items-center">
-        <Search className="w-4 h-4 absolute left-3.5 text-slate-400" />
+        <Search className="w-4 h-4 absolute left-3.5 text-slate-400 dark:text-slate-500" />
         <input
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
           placeholder="Cari tugas atau ketik perintah waktu (mis. '14:00')..."
-          className="w-full bg-white rounded-xl py-2.5 pl-10 pr-24 text-slate-900 text-xs sm:text-sm border border-slate-200/80 shadow-2xs placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+          className="w-full bg-white dark:bg-slate-900 rounded-xl py-2.5 pl-10 pr-24 text-slate-900 dark:text-white text-xs sm:text-sm border border-slate-200/80 dark:border-slate-800 shadow-2xs placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
           type="text"
         />
         <div
           onClick={onOpenCommandPalette}
-          className="absolute right-2.5 flex items-center gap-1 bg-slate-100 hover:bg-slate-200/70 cursor-pointer px-2 py-0.5 rounded text-[11px] font-mono text-slate-500 border border-slate-200 transition-colors"
+          className="absolute right-2.5 flex items-center gap-1 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200/70 dark:hover:bg-slate-700/70 cursor-pointer px-2 py-0.5 rounded text-[11px] font-mono text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 transition-colors"
         >
           <span>⌘K</span>
         </div>

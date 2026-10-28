@@ -43,57 +43,57 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
     switch (effectiveColor) {
       case 'amber':
         return {
-          cardBg: 'bg-amber-50/70 border-amber-200/70 hover:bg-amber-50',
+          cardBg: 'bg-amber-50/70 dark:bg-amber-950/30 border-amber-200/70 dark:border-amber-900/40 hover:bg-amber-50 dark:hover:bg-amber-950/50',
           badgeBg: 'bg-amber-500 text-white',
-          textTitle: 'text-amber-950',
-          textSubtitle: 'text-amber-800/80',
-          iconColor: 'text-amber-600',
+          textTitle: 'text-amber-950 dark:text-amber-200',
+          textSubtitle: 'text-amber-800/80 dark:text-amber-400/80',
+          iconColor: 'text-amber-600 dark:text-amber-400',
           Icon: Video,
         };
       case 'emerald':
         return {
-          cardBg: 'bg-emerald-50/70 border-emerald-200/70 hover:bg-emerald-50',
+          cardBg: 'bg-emerald-50/70 dark:bg-emerald-950/30 border-emerald-200/70 dark:border-emerald-900/40 hover:bg-emerald-50 dark:hover:bg-emerald-950/50',
           badgeBg: 'bg-emerald-600 text-white',
-          textTitle: 'text-emerald-950',
-          textSubtitle: 'text-emerald-800/80',
-          iconColor: 'text-emerald-600',
+          textTitle: 'text-emerald-950 dark:text-emerald-200',
+          textSubtitle: 'text-emerald-800/80 dark:text-emerald-400/80',
+          iconColor: 'text-emerald-600 dark:text-emerald-400',
           Icon: Timer,
         };
       case 'purple':
         return {
-          cardBg: 'bg-purple-50/70 border-purple-200/70 hover:bg-purple-50',
+          cardBg: 'bg-purple-50/70 dark:bg-purple-950/30 border-purple-200/70 dark:border-purple-900/40 hover:bg-purple-50 dark:hover:bg-purple-950/50',
           badgeBg: 'bg-purple-600 text-white',
-          textTitle: 'text-purple-950',
-          textSubtitle: 'text-purple-800/80',
-          iconColor: 'text-purple-600',
+          textTitle: 'text-purple-950 dark:text-purple-200',
+          textSubtitle: 'text-purple-800/80 dark:text-purple-400/80',
+          iconColor: 'text-purple-600 dark:text-purple-400',
           Icon: Timer,
         };
       case 'red':
         return {
-          cardBg: 'bg-red-50/80 border-red-200 hover:bg-red-50',
+          cardBg: 'bg-red-50/80 dark:bg-red-950/30 border-red-200 dark:border-red-900/50 hover:bg-red-50 dark:hover:bg-red-950/50',
           badgeBg: 'bg-red-600 text-white',
-          textTitle: 'text-red-950',
-          textSubtitle: 'text-red-700/80',
-          iconColor: 'text-red-600',
+          textTitle: 'text-red-950 dark:text-red-200',
+          textSubtitle: 'text-red-700/80 dark:text-red-400/80',
+          iconColor: 'text-red-600 dark:text-red-400',
           Icon: AlertOctagon,
         };
       case 'slate':
         return {
-          cardBg: 'bg-slate-50/80 border-dashed border-slate-200 hover:bg-slate-100/60',
-          badgeBg: 'bg-slate-200 text-slate-700 font-medium',
-          textTitle: 'text-slate-700',
-          textSubtitle: 'text-slate-400',
-          iconColor: 'text-slate-400',
+          cardBg: 'bg-slate-50/80 dark:bg-slate-800/40 border-dashed border-slate-200 dark:border-slate-700 hover:bg-slate-100/60 dark:hover:bg-slate-800/70',
+          badgeBg: 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-medium',
+          textTitle: 'text-slate-700 dark:text-slate-200',
+          textSubtitle: 'text-slate-400 dark:text-slate-400',
+          iconColor: 'text-slate-400 dark:text-slate-400',
           Icon: Utensils,
         };
       case 'blue':
       default:
         return {
-          cardBg: 'bg-slate-50 border-slate-100 hover:bg-slate-100/70',
+          cardBg: 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 hover:bg-slate-100/70 dark:hover:bg-slate-800/80',
           badgeBg: 'bg-blue-600 text-white',
-          textTitle: 'text-slate-900',
-          textSubtitle: 'text-slate-500',
-          iconColor: 'text-blue-600',
+          textTitle: 'text-slate-900 dark:text-slate-100',
+          textSubtitle: 'text-slate-500 dark:text-slate-400',
+          iconColor: 'text-blue-600 dark:text-blue-400',
           Icon: Timer,
         };
     }
@@ -105,7 +105,7 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <CalendarClock className="w-5 h-5 text-purple-600" />
-          <h3 className="text-base sm:text-lg font-bold text-slate-900">
+          <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
             Jadwal & Time-Blocking
           </h3>
         </div>
@@ -113,7 +113,7 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
           {onAddBlock && (
             <button
               onClick={onAddBlock}
-              className="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-700 text-xs font-semibold rounded-lg border border-purple-200 flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1 bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-semibold rounded-lg border border-purple-200 dark:border-purple-800 flex items-center gap-1 transition-colors"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Tambah Blok</span>
@@ -122,7 +122,7 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
           {onOpenFullGrid && (
             <button
               onClick={onOpenFullGrid}
-              className="text-xs font-semibold text-blue-600 hover:text-blue-700 hover:underline transition-colors flex items-center gap-1"
+              className="text-xs font-semibold text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline transition-colors flex items-center gap-1"
             >
               <span>Lihat Full Grid</span>
               <ExternalLink className="w-3 h-3" />
@@ -132,7 +132,7 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
       </div>
 
       {/* Vertical Timeline Visualizer */}
-      <div className="bg-white rounded-2xl p-3.5 sm:p-5 shadow-card border border-slate-100 flex flex-col gap-3">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl p-3.5 sm:p-5 shadow-card border border-slate-100 dark:border-slate-800 flex flex-col gap-3">
         {timeline.map((block) => {
           const isConflict = block.type === 'conflict';
           const style = getStyleForBlock(block);
@@ -144,14 +144,14 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
               <div className="w-14 sm:w-16 flex-shrink-0 flex flex-col justify-start pt-1 text-right pr-2">
                 <span
                   className={`text-xs font-mono font-bold ${
-                    isConflict ? 'text-red-600' : 'text-slate-800'
+                    isConflict ? 'text-red-600 dark:text-red-400' : 'text-slate-800 dark:text-slate-200'
                   }`}
                 >
                   {block.startTime}
                 </span>
                 <span
                   className={`text-[10px] font-mono ${
-                    isConflict ? 'text-red-400 font-semibold' : 'text-slate-400'
+                    isConflict ? 'text-red-400 font-semibold' : 'text-slate-400 dark:text-slate-500'
                   }`}
                 >
                   {block.endTime}
@@ -177,7 +177,7 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
                     {isConflict && onResolveConflict && (
                       <button
                         onClick={() => onResolveConflict(block)}
-                        className="text-xs font-semibold text-red-600 underline hover:text-red-800 transition-colors mr-1"
+                        className="text-xs font-semibold text-red-600 dark:text-red-400 underline hover:text-red-800 dark:hover:text-red-300 transition-colors mr-1"
                       >
                         Geser Jam
                       </button>
@@ -187,7 +187,7 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
                     {onEditBlock && (
                       <button
                         onClick={() => onEditBlock(block)}
-                        className="p-1 rounded text-slate-400 hover:text-blue-600 hover:bg-white transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
+                        className="p-1 rounded text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-slate-800 transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
                         title="Edit blok / ganti label"
                       >
                         <Pencil className="w-3.5 h-3.5" />
@@ -198,7 +198,7 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
                     {onDeleteBlock && (
                       <button
                         onClick={() => onDeleteBlock(block.id)}
-                        className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-white transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
+                        className="p-1 rounded text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-white dark:hover:bg-slate-800 transition-colors opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
                         title="Hapus blok jadwal"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -222,7 +222,7 @@ export const TimeBlockingSection: React.FC<TimeBlockingSectionProps> = ({
         })}
 
         {timeline.length === 0 && (
-          <div className="py-8 text-center text-slate-400 text-xs">
+          <div className="py-8 text-center text-slate-400 dark:text-slate-500 text-xs">
             Belum ada jadwal time-blocking untuk hari ini. Klik "Tambah Blok" untuk membuat jadwal baru.
           </div>
         )}

@@ -16,6 +16,7 @@ import { AuthModal } from './components/modals/AuthModal';
 import { EditProfileModal } from './components/modals/EditProfileModal';
 import { TimeBlockModal } from './components/modals/TimeBlockModal';
 import { ProductivityLineChart } from './components/stats/ProductivityLineChart';
+import { useTheme } from './context/ThemeContext';
 import {
   initialTasks,
   initialTimeline,
@@ -43,9 +44,14 @@ import {
   LogIn,
   CheckCircle2,
   Sparkles,
+  Sun,
+  Moon,
+  Laptop,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
+  const { theme, setTheme } = useTheme();
+
   // Navigation & UI state
   const [activeTab, setActiveTab] = useState<string>('hari-ini');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
@@ -315,7 +321,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#FAFBFC] text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#FAFBFC] dark:bg-[#0B0F17] text-slate-900 dark:text-slate-100 flex flex-col font-sans">
       {/* 1. TopBar (Fixed) with Auth & Profile state */}
       <TopBar
         onToggleSidebar={() => setIsMobileSidebarOpen(true)}
@@ -407,10 +413,10 @@ export const App: React.FC = () => {
             {/* TAB: SEMUA TUGAS */}
             {activeTab === 'tugas' && (
               <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900">Semua Tugas</h2>
-                    <p className="text-xs text-slate-500">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Semua Tugas</h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Total {tasks.length} tugas terdaftar di seluruh kategori
                     </p>
                   </div>
@@ -435,14 +441,14 @@ export const App: React.FC = () => {
             {/* TAB: KALENDER */}
             {activeTab === 'kalender' && (
               <div className="flex flex-col gap-4">
-                <div className="flex items-center justify-between pb-2 border-b border-slate-200">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-200 dark:border-slate-800">
                   <div>
-                    <h2 className="text-2xl font-bold text-slate-900">Kalender Terpadu</h2>
-                    <p className="text-xs text-slate-500">
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Kalender Terpadu</h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
                       Pantau jumlah tugas yang berhasil diselesaikan pada setiap hari
                     </p>
                   </div>
-                  <div className="flex items-center gap-1.5 text-xs text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200">
+                  <div className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-lg border border-amber-200 dark:border-amber-900/40">
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     <span>Auto-Sync Aktif</span>
                   </div>
@@ -461,29 +467,29 @@ export const App: React.FC = () => {
             {/* TAB: ANALISA */}
             {activeTab === 'analitik' && (
               <div className="flex flex-col gap-6">
-                <div className="pb-2 border-b border-slate-200">
-                  <h2 className="text-2xl font-bold text-slate-900">Analisa Produktivitas</h2>
-                  <p className="text-xs text-slate-500">
+                <div className="pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Analisa Produktivitas</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Evaluasi komprehensif performa, tren pengerjaan tugas, dan konsistensi harian Anda
                   </p>
                 </div>
 
                 {/* 4 Stat Cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                  <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-card">
-                    <span className="text-xs text-slate-500">Tingkat Selesai</span>
-                    <p className="text-2xl font-bold text-blue-600 font-mono mt-1">{percentage}%</p>
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Tingkat Selesai</span>
+                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400 font-mono mt-1">{percentage}%</p>
                   </div>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-card">
-                    <span className="text-xs text-slate-500">Tugas Tuntas</span>
-                    <p className="text-2xl font-bold text-emerald-600 font-mono mt-1">{completedCount}</p>
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Tugas Tuntas</span>
+                    <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 font-mono mt-1">{completedCount}</p>
                   </div>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-card">
-                    <span className="text-xs text-slate-500">Tertunda</span>
-                    <p className="text-2xl font-bold text-red-600 font-mono mt-1">{taskCounts.overdue}</p>
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Tertunda</span>
+                    <p className="text-2xl font-bold text-red-600 dark:text-red-400 font-mono mt-1">{taskCounts.overdue}</p>
                   </div>
-                  <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-card">
-                    <span className="text-xs text-slate-500">Streak Hari</span>
+                  <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card">
+                    <span className="text-xs text-slate-500 dark:text-slate-400">Streak Hari</span>
                     <p className="text-2xl font-bold text-amber-500 font-mono mt-1">
                       🔥 {currentUser?.streakCount || 5}
                     </p>
@@ -498,15 +504,15 @@ export const App: React.FC = () => {
             {/* TAB: PENGATURAN */}
             {activeTab === 'pengaturan' && (
               <div className="flex flex-col gap-4">
-                <div className="pb-2 border-b border-slate-200">
-                  <h2 className="text-2xl font-bold text-slate-900">Pengaturan</h2>
-                  <p className="text-xs text-slate-500">
+                <div className="pb-2 border-b border-slate-200 dark:border-slate-800">
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Pengaturan</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Kelola profil, akun multi-perangkat, dan preferensi aplikasi
                   </p>
                 </div>
 
                 {/* Profile Card */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="flex items-center gap-3.5">
                     <img
                       src={
@@ -517,14 +523,14 @@ export const App: React.FC = () => {
                       className="w-14 h-14 rounded-full object-cover ring-4 ring-blue-500/20 shadow-xs"
                     />
                     <div>
-                      <h3 className="text-base font-bold text-slate-900">
+                      <h3 className="text-base font-bold text-slate-900 dark:text-white">
                         {currentUser ? currentUser.name : 'Pengguna Tamu'}
                       </h3>
-                      <p className="text-xs text-slate-500 font-mono">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                         {currentUser ? `@${currentUser.username} • ${currentUser.email}` : 'Data tersimpan hanya di browser ini'}
                       </p>
                       {currentUser && (
-                        <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200/60">
+                        <span className="inline-flex items-center gap-1 mt-1 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-900/40">
                           <CheckCircle2 className="w-3 h-3" />
                           <span>Tersinkronisasi Cloud</span>
                         </span>
@@ -552,36 +558,109 @@ export const App: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Theme Switcher Card (Mode Terang / Mode Gelap / Otomatis Sistem) */}
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card flex flex-col gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <span>Tema Tampilan</span>
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 border border-blue-200/60 dark:border-blue-800/40">
+                          {theme === 'light' ? 'Terang' : theme === 'dark' ? 'Gelap' : 'Sistem'}
+                        </span>
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Pilih mode tampilan sesuai preferensi kenyamanan mata Anda
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-2.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setTheme('light')}
+                      className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border-2 transition-all ${
+                        theme === 'light'
+                          ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 font-bold shadow-xs'
+                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/60 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${theme === 'light' ? 'bg-amber-100 text-amber-600' : 'bg-slate-200/80 dark:bg-slate-700 text-slate-500'}`}>
+                        <Sun className="w-5 h-5" />
+                      </div>
+                      <div className="text-center">
+                        <span className="text-xs block">Terang</span>
+                        <span className="text-[10px] text-slate-400 font-normal">Light Mode</span>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setTheme('dark')}
+                      className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border-2 transition-all ${
+                        theme === 'dark'
+                          ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 font-bold shadow-xs'
+                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/60 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${theme === 'dark' ? 'bg-blue-600 text-white' : 'bg-slate-200/80 dark:bg-slate-700 text-slate-500'}`}>
+                        <Moon className="w-5 h-5" />
+                      </div>
+                      <div className="text-center">
+                        <span className="text-xs block">Gelap</span>
+                        <span className="text-[10px] text-slate-400 font-normal">Dark Mode</span>
+                      </div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setTheme('system')}
+                      className={`flex flex-col items-center justify-center gap-2 p-3.5 rounded-xl border-2 transition-all ${
+                        theme === 'system'
+                          ? 'border-blue-600 bg-blue-50/60 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 font-bold shadow-xs'
+                          : 'border-slate-200 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50/60 dark:bg-slate-800/50 text-slate-700 dark:text-slate-300'
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${theme === 'system' ? 'bg-indigo-600 text-white' : 'bg-slate-200/80 dark:bg-slate-700 text-slate-500'}`}>
+                        <Laptop className="w-5 h-5" />
+                      </div>
+                      <div className="text-center">
+                        <span className="text-xs block">Sistem</span>
+                        <span className="text-[10px] text-slate-400 font-normal">Otomatis OS</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Cloud Sync & Google Calendar Card */}
-                <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-card flex flex-col gap-4">
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card flex flex-col gap-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h4 className="text-sm font-semibold text-slate-900">Sinkronisasi Multi-Perangkat</h4>
-                      <p className="text-xs text-slate-500">
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Sinkronisasi Multi-Perangkat</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         Masuk dengan akun yang sama di HP atau laptop untuk mengakses semua tugas & progres.
                       </p>
                     </div>
-                    <span className="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-full border border-blue-200">
+                    <span className="px-2.5 py-1 bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded-full border border-blue-200 dark:border-blue-800">
                       Aktif
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                     <div>
-                      <h4 className="text-sm font-semibold text-slate-900">Koneksi Google Calendar</h4>
-                      <p className="text-xs text-slate-500">
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Koneksi Google Calendar</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
                         {currentUser ? `${currentUser.email} (Terhubung)` : 'Hubungkan akun untuk deteksi bentrok jadwal'}
                       </p>
                     </div>
-                    <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-200">
+                    <span className="px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 text-xs font-semibold rounded-full border border-emerald-200 dark:border-emerald-800">
                       Tersambung
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between pt-3 border-t border-slate-100 dark:border-slate-800">
                     <div>
-                      <h4 className="text-sm font-semibold text-slate-900">Notifikasi Browser & Alarm</h4>
-                      <p className="text-xs text-slate-500">Bunyikan alarm saat waktu time-block tiba</p>
+                      <h4 className="text-sm font-semibold text-slate-900 dark:text-white">Notifikasi Browser & Alarm</h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Bunyikan alarm saat waktu time-block tiba</p>
                     </div>
                     <input type="checkbox" defaultChecked className="w-4 h-4 accent-blue-600" />
                   </div>

@@ -60,34 +60,34 @@ export const GoogleOAuthSetupModal: React.FC<GoogleOAuthSetupModalProps> = ({
       />
 
       {/* Modal Card */}
-      <div className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 z-10 overflow-y-auto max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-lg bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 p-6 z-10 overflow-y-auto max-h-[92vh] animate-in fade-in zoom-in-95 duration-200">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header */}
-        <div className="flex items-start gap-3 pb-4 border-b border-slate-100">
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold flex-shrink-0">
+        <div className="flex items-start gap-3 pb-4 border-b border-slate-100 dark:border-slate-800">
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold flex-shrink-0">
             <KeyRound className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base sm:text-lg font-bold text-slate-900">
+            <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
               Panduan Setup Google OAuth 2.0
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Langkah cepat menghubungkan autentikasi resmi akun Google
             </p>
           </div>
         </div>
 
         {/* Content Body */}
-        <div className="mt-4 flex flex-col gap-4 text-xs sm:text-sm text-slate-700">
-          <div className="p-3 bg-blue-50/80 border border-blue-200/60 rounded-2xl text-blue-900 flex items-start gap-2.5">
-            <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="mt-4 flex flex-col gap-4 text-xs sm:text-sm text-slate-700 dark:text-slate-300">
+          <div className="p-3 bg-blue-50/80 dark:bg-blue-950/30 border border-blue-200/60 dark:border-blue-900/40 rounded-2xl text-blue-900 dark:text-blue-200 flex items-start gap-2.5">
+            <Info className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
             <span className="text-xs leading-relaxed">
               Agar pengguna dapat diarahkan langsung ke halaman login resmi milik Google (<code>accounts.google.com</code>), aplikasi membutuhkan <strong>Google Client ID</strong> dari Google Cloud Console.
             </span>
@@ -95,14 +95,14 @@ export const GoogleOAuthSetupModal: React.FC<GoogleOAuthSetupModalProps> = ({
 
           {/* Steps */}
           <div className="flex flex-col gap-3">
-            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               Langkah Pembuatan (Hanya 2 Menit):
             </h4>
 
             {/* Step 1 */}
-            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-1.5">
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col gap-1.5">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+                <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                   <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">1</span>
                   Buka Google Cloud Console
                 </span>
@@ -110,55 +110,55 @@ export const GoogleOAuthSetupModal: React.FC<GoogleOAuthSetupModalProps> = ({
                   href="https://console.cloud.google.com/apis/credentials"
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline"
+                  className="inline-flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
                 >
                   <span>Buka Console</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </div>
-              <p className="text-xs text-slate-500 pl-6.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 pl-6.5">
                 Pilih atau buat project baru, lalu buka menu <strong>APIs & Services &gt; Credentials</strong>.
               </p>
             </div>
 
             {/* Step 2 */}
-            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-1.5">
-              <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col gap-1.5">
+              <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                 <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">2</span>
                 Konfigurasi OAuth Consent Screen
               </span>
-              <p className="text-xs text-slate-500 pl-6.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 pl-6.5">
                 Jika belum pernah, pilih User Type <strong>External</strong>, isi nama aplikasi (misal: <em>TimeBlock To-Do</em>) dan email kontak Anda.
               </p>
             </div>
 
             {/* Step 3 */}
-            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-2">
-              <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+              <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                 <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">3</span>
                 Buat OAuth Client ID (Web Application)
               </span>
-              <p className="text-xs text-slate-500 pl-6.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 pl-6.5">
                 Klik <strong>+ Create Credentials</strong> &gt; pilih <strong>OAuth client ID</strong> &gt; Application type: <strong>Web application</strong>.
               </p>
 
               {/* Origin copy box */}
-              <div className="ml-6.5 p-2 bg-white rounded-xl border border-slate-200 flex items-center justify-between">
+              <div className="ml-6.5 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-slate-400 block font-semibold uppercase">
+                  <span className="text-[10px] text-slate-400 dark:text-slate-500 block font-semibold uppercase">
                     Authorized JavaScript origins:
                   </span>
-                  <code className="text-xs font-mono font-bold text-slate-800">
+                  <code className="text-xs font-mono font-bold text-slate-800 dark:text-slate-200">
                     {currentOrigin}
                   </code>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleCopy(currentOrigin, 'origin')}
-                  className="px-2.5 py-1 text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg flex items-center gap-1 font-semibold transition-colors"
+                  className="px-2.5 py-1 text-xs bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-lg flex items-center gap-1 font-semibold transition-colors"
                 >
                   {copiedText === 'origin' ? (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   ) : (
                     <Copy className="w-3.5 h-3.5" />
                   )}
@@ -168,12 +168,12 @@ export const GoogleOAuthSetupModal: React.FC<GoogleOAuthSetupModalProps> = ({
             </div>
 
             {/* Step 4 */}
-            <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-2">
-              <span className="font-semibold text-slate-900 flex items-center gap-1.5">
+            <div className="p-3.5 bg-slate-50 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col gap-2">
+              <span className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
                 <span className="w-5 h-5 rounded-full bg-blue-600 text-white text-[11px] font-bold flex items-center justify-center">4</span>
                 Tempel Client ID di Bawah Ini:
               </span>
-              <p className="text-xs text-slate-500 pl-6.5">
+              <p className="text-xs text-slate-500 dark:text-slate-400 pl-6.5">
                 Salin Client ID yang berakhiran <code>.apps.googleusercontent.com</code> lalu tempel di sini:
               </p>
 
@@ -185,12 +185,12 @@ export const GoogleOAuthSetupModal: React.FC<GoogleOAuthSetupModalProps> = ({
                     value={clientIdInput}
                     onChange={(e) => setClientIdInput(e.target.value)}
                     placeholder="misal: 123456789-abcdef.apps.googleusercontent.com"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-mono text-slate-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-mono text-slate-800 dark:text-slate-100 bg-white dark:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] text-slate-400">
+                  <span className="text-[11px] text-slate-400 dark:text-slate-500">
                     Atau simpan permanen di file <code>frontend/.env</code>
                   </span>
                   <button
