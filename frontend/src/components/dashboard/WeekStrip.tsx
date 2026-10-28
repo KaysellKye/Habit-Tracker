@@ -1,5 +1,6 @@
 import React from 'react';
 import { WeekDay } from '../../types';
+import { getMonthYearLabel } from '../../utils/dateUtils';
 
 interface WeekStripProps {
   days: WeekDay[];
@@ -12,14 +13,16 @@ export const WeekStrip: React.FC<WeekStripProps> = ({
   days,
   selectedDate,
   onSelectDate,
-  monthYearLabel = 'Oktober 2023',
+  monthYearLabel,
 }) => {
+  const displayMonthYear = monthYearLabel || getMonthYearLabel();
+
   return (
     <section className="flex flex-col gap-2">
       <div className="flex items-center justify-between px-0.5">
         <span className="text-xs font-semibold text-slate-800 dark:text-slate-200">Pekan Ini</span>
         <span className="text-xs font-mono font-semibold text-blue-600 dark:text-blue-400">
-          {monthYearLabel}
+          {displayMonthYear}
         </span>
       </div>
 

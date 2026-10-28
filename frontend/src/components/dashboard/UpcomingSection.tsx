@@ -1,6 +1,7 @@
 import React from 'react';
 import { CalendarRange, GraduationCap, ShoppingBag, Briefcase, MoreVertical } from 'lucide-react';
 import { UpcomingTaskItem } from '../../types';
+import { getTomorrowDateLabel } from '../../utils/dateUtils';
 
 interface UpcomingSectionProps {
   upcomingTasks: UpcomingTaskItem[];
@@ -9,8 +10,9 @@ interface UpcomingSectionProps {
 
 export const UpcomingSection: React.FC<UpcomingSectionProps> = ({
   upcomingTasks,
-  dateBadgeText = 'Rabu, 25 Okt',
+  dateBadgeText,
 }) => {
+  const displayDateBadge = dateBadgeText || getTomorrowDateLabel();
   return (
     <section className="flex flex-col gap-3 mb-2">
       <div className="flex items-center justify-between">
@@ -21,7 +23,7 @@ export const UpcomingSection: React.FC<UpcomingSectionProps> = ({
           </h3>
         </div>
         <span className="text-[11px] font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2.5 py-0.5 rounded-full border border-slate-200/60 dark:border-slate-700">
-          {dateBadgeText}
+          {displayDateBadge}
         </span>
       </div>
 

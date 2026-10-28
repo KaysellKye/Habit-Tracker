@@ -71,13 +71,17 @@ export const TimeBlockModal: React.FC<TimeBlockModalProps> = ({
       setColor(initialBlock.color || (initialBlock.type === 'gmeet' ? 'amber' : initialBlock.type === 'conflict' ? 'red' : initialBlock.type === 'break' ? 'slate' : 'blue'));
       setSubtitle(initialBlock.subtitle);
     } else {
-      setStartTime('09:00');
-      setEndTime('10:30');
+      const now = new Date();
+      const h = now.getHours();
+      const start = `${String(h).padStart(2, '0')}:00`;
+      const end = `${String((h + 1) % 24).padStart(2, '0')}:00`;
+      setStartTime(start);
+      setEndTime(end);
       setTitle('');
       setBadgeText('FOKUS KERJA');
       setType('focus');
       setColor('blue');
-      setSubtitle('Durasi: 1j 30m');
+      setSubtitle('Sesi Fokus');
     }
   }, [initialBlock, isOpen]);
 

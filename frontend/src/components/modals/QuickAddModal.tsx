@@ -13,10 +13,18 @@ export const QuickAddModal: React.FC<QuickAddModalProps> = ({
   onClose,
   onAddTask,
 }) => {
+  const getCurrentHourSlot = () => {
+    const d = new Date();
+    const h = d.getHours();
+    const start = `${String(h).padStart(2, '0')}:00`;
+    const end = `${String((h + 1) % 24).padStart(2, '0')}:00`;
+    return `${start} - ${end}`;
+  };
+
   const [title, setTitle] = useState('');
   const [category, setCategory] = useState<Category>('Kerja');
   const [priority, setPriority] = useState<Priority>('High');
-  const [timeRange, setTimeRange] = useState('14:00 - 15:30');
+  const [timeRange, setTimeRange] = useState(getCurrentHourSlot);
   const [isGoogleSync, setIsGoogleSync] = useState(true);
   const [subtasks, setSubtasks] = useState<{ id: string; title: string; completed: boolean }[]>([]);
   const [newSubtaskTitle, setNewSubtaskTitle] = useState('');

@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { Task, WeekDay } from '../../types';
 import { WeekStrip } from '../dashboard/WeekStrip';
+import { formatFullDateIndonesian, getTodayDateStr } from '../../utils/dateUtils';
 
 interface DailyCompletedViewProps {
   days: WeekDay[];
@@ -27,36 +28,34 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
   tasks,
   onToggleTask,
 }) => {
+  const todayStr = getTodayDateStr();
+
   // Find selected day info
-  const selectedDayObj = days.find((d) => d.dateStr === selectedDate) || days[1];
+  const selectedDayObj =
+    days.find((d) => d.dateStr === selectedDate) ||
+    days.find((d) => d.isToday) ||
+    days[0] ||
+    { dayName: 'Hari Ini', dayNumber: new Date().getDate(), dateStr: todayStr, isToday: true };
 
   // Helper date text
   const getFullDateLabel = (dateStr: string) => {
-    switch (dateStr) {
-      case '2023-10-23':
-        return 'Senin, 23 Oktober 2023';
-      case '2023-10-24':
-        return 'Selasa, 24 Oktober 2023 (Hari Ini)';
-      case '2023-10-25':
-        return 'Rabu, 25 Oktober 2023';
-      case '2023-10-26':
-        return 'Kamis, 26 Oktober 2023';
-      case '2023-10-27':
-        return 'Jumat, 27 Oktober 2023';
-      case '2023-10-28':
-        return 'Sabtu, 28 Oktober 2023';
-      case '2023-10-29':
-        return 'Minggu, 29 Oktober 2023';
-      default:
-        return selectedDayObj.dateStr;
+    const formatted = formatFullDateIndonesian(dateStr);
+    if (dateStr === todayStr) {
+      return `${formatted} (Hari Ini)`;
     }
+    return formatted;
   };
 
   // Filter tasks for this selected date
   const tasksForDate = tasks.filter((t) => {
-    if (t.dateStr) return t.dateStr === selectedDate;
-    // fallback default is today (2023-10-24)
-    return selectedDate === '2023-10-24' && !t.isOverdue;
+    if (t.dateStr) {
+      return (
+        t.dateStr === selectedDate ||
+        (t.dateStr === '2023-10-24' && selectedDate === todayStr)
+      );
+    }
+    // fallback default is today
+    return selectedDate === todayStr && !t.isOverdue;
   });
 
   const completedTasks = tasksForDate.filter((t) => t.completed);
@@ -67,8 +66,13 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
   // Calculate daily completions across the whole week for the summary bar
   const weekStats = days.map((day) => {
     const dayTasks = tasks.filter((t) => {
-      if (t.dateStr) return t.dateStr === day.dateStr;
-      return day.dateStr === '2023-10-24' && !t.isOverdue;
+      if (t.dateStr) {
+        return (
+          t.dateStr === day.dateStr ||
+          (t.dateStr === '2023-10-24' && day.isToday)
+        );
+      }
+      return day.isToday && !t.isOverdue;
     });
     const done = dayTasks.filter((t) => t.completed).length;
     return {
@@ -201,8 +205,8 @@ export const DailyCompletedView: React.FC<DailyCompletedViewProps> = ({
               Daftar Tugas Selesai ({completedCount})
             </h3>
           </div>
-          <span className="text-xs font-mono text-slate-400 dark:text-slate-500">
-            {selectedDayObj.dayName}, {selectedDayObj.dayNumber} Okt
+          <span className="text-xs font-mono text-slate-500 dark:text-slate-400">
+            {formatFullDateIndonesian(selectedDayObj.dateStr)}
           </span>
         </div>
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar as CalendarIcon, Flame, Search } from 'lucide-react';
+import { Calendar as CalendarIcon, Flame, Search, Clock } from 'lucide-react';
 
 interface DailyProgressRingProps {
   completedCount: number;
@@ -11,6 +11,8 @@ interface DailyProgressRingProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   onOpenCommandPalette?: () => void;
+  currentTimeText?: string;
+  greetingText?: string;
 }
 
 export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
@@ -23,6 +25,8 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
   searchQuery,
   onSearchChange,
   onOpenCommandPalette,
+  currentTimeText,
+  greetingText = 'Selamat datang',
 }) => {
   // SVG calculation for circular ring (radius = 26, circumference = 2 * PI * 26 = 163.36)
   const radius = 26;
@@ -32,20 +36,33 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
   return (
     <section className="flex flex-col gap-3.5 pt-2">
       {/* Greeting & Date Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
-            <span>Selamat pagi, {userName}</span>
+            <span>{greetingText}, {userName}</span>
             <span className="inline-block animate-wiggle">👋</span>
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 flex items-center gap-1.5 mt-0.5">
-            <CalendarIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-            <span>{currentDateText}</span>
-          </p>
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 mt-1">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium flex items-center gap-1.5">
+              <CalendarIcon className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>{currentDateText}</span>
+            </p>
+
+            {currentTimeText && (
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/60 text-xs font-mono font-semibold">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <Clock className="w-3 h-3 text-blue-600 dark:text-blue-400" />
+                <span>{currentTimeText}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Streak Pill */}
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 shadow-2xs border border-purple-200/50 dark:border-purple-800/50">
+        <div className="flex items-center gap-1.5 px-3 py-1 self-start sm:self-auto rounded-full bg-purple-100 dark:bg-purple-950/40 text-purple-900 dark:text-purple-300 shadow-2xs border border-purple-200/50 dark:border-purple-800/50">
           <span className="text-xs">🔥</span>
           <span className="text-xs font-semibold tracking-normal">{streakCount} Hari Streak</span>
         </div>

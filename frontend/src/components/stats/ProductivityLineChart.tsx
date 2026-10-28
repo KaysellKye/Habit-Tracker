@@ -8,6 +8,7 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import { Task, WeekDay } from '../../types';
+import { getCurrentWeekDays, formatFullDateIndonesian } from '../../utils/dateUtils';
 
 interface ProductivityLineChartProps {
   tasks: Task[];
@@ -31,22 +32,20 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
   const [timeRange, setTimeRange] = useState<'week' | 'trend'>('week');
 
   // Default week days if none provided
-  const days: WeekDay[] = weekDays || [
-    { dayName: 'Sen', dayNumber: 23, dateStr: '2023-10-23', isToday: false },
-    { dayName: 'Sel', dayNumber: 24, dateStr: '2023-10-24', isToday: true },
-    { dayName: 'Rab', dayNumber: 25, dateStr: '2023-10-25', isToday: false },
-    { dayName: 'Kam', dayNumber: 26, dateStr: '2023-10-26', isToday: false },
-    { dayName: 'Jum', dayNumber: 27, dateStr: '2023-10-27', isToday: false },
-    { dayName: 'Sab', dayNumber: 28, dateStr: '2023-10-28', isToday: false },
-    { dayName: 'Min', dayNumber: 29, dateStr: '2023-10-29', isToday: false },
-  ];
+  const days: WeekDay[] = weekDays || getCurrentWeekDays();
 
   // Compute completed tasks per day strictly from actual tasks
   const chartData: DayData[] = days.map((day) => {
     // Match by dateStr, or if task has no dateStr attribute, associate with today
-    const tasksOnDay = tasks.filter((t) =>
-      t.dateStr ? t.dateStr === day.dateStr : day.isToday
-    );
+    const tasksOnDay = tasks.filter((t) => {
+      if (t.dateStr) {
+        return (
+          t.dateStr === day.dateStr ||
+          (t.dateStr === '2023-10-24' && day.isToday)
+        );
+      }
+      return day.isToday;
+    });
     const completed = tasksOnDay.filter((t) => t.completed).length;
     const total = tasksOnDay.length;
 
@@ -365,7 +364,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
               {/* Tooltip Card Box */}
               <div className="bg-slate-900/95 dark:bg-slate-800/95 backdrop-blur-xs text-white px-3 py-1.5 rounded-xl shadow-xl border border-slate-700/80 text-center whitespace-nowrap">
                 <span className="font-bold text-slate-100 text-[11px] block">
-                  {pt.data.dayName}, {pt.data.dayNumber} Okt {pt.data.isToday ? '• Hari Ini' : ''}
+                  {formatFullDateIndonesian(pt.data.dateStr)} {pt.data.isToday ? '• Hari Ini' : ''}
                 </span>
                 <span className="text-[11px] font-semibold text-blue-300 dark:text-blue-400 font-mono mt-0.5 block">
                   {pt.data.completed > 0

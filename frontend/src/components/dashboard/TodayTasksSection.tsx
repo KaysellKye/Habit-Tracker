@@ -13,6 +13,7 @@ import {
   MoreVertical,
 } from 'lucide-react';
 import { Task, Category, Priority } from '../../types';
+import { getTodayDateStr } from '../../utils/dateUtils';
 
 interface TodayTasksSectionProps {
   tasks: Task[];
@@ -21,6 +22,8 @@ interface TodayTasksSectionProps {
   onAddTask: (task: Partial<Task>) => void;
   onDeleteTask: (taskId: string, taskTitle: string) => void;
   onOpenTaskDetail?: (task: Task) => void;
+  todayDateStr?: string;
+  selectedDate?: string;
 }
 
 export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
@@ -30,6 +33,8 @@ export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
   onAddTask,
   onDeleteTask,
   onOpenTaskDetail,
+  todayDateStr,
+  selectedDate,
 }) => {
   const [quickInput, setQuickInput] = useState('');
   const [selectedTag, setSelectedTag] = useState<Category>('Kerja');
@@ -38,7 +43,15 @@ export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const todayTasks = tasks.filter((t) => !t.isOverdue && (!t.dateStr || t.dateStr === '2023-10-24'));
+  const effectiveToday = todayDateStr || getTodayDateStr();
+  const effectiveDate = selectedDate || effectiveToday;
+
+  const todayTasks = tasks.filter((t) => {
+    if (t.isOverdue) return false;
+    if (!t.dateStr) return true;
+    // Match today, or migrate legacy 2023-10-24 sample tasks seamlessly to today
+    return t.dateStr === effectiveDate || (t.dateStr === '2023-10-24' && effectiveDate === effectiveToday);
+  });
 
   const handleQuickSubmit = (e: React.FormEvent) => {
     e.preventDefault();

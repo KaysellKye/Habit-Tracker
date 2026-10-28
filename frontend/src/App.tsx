@@ -18,6 +18,11 @@ import { TimeBlockModal } from './components/modals/TimeBlockModal';
 import { ProductivityLineChart } from './components/stats/ProductivityLineChart';
 import { useTheme } from './context/ThemeContext';
 import {
+  useRealtimeClock,
+  getCurrentWeekDays,
+  getTodayDateStr,
+} from './utils/dateUtils';
+import {
   initialTasks,
   initialTimeline,
   initialWeekDays,
@@ -52,11 +57,22 @@ import {
 export const App: React.FC = () => {
   const { theme, setTheme } = useTheme();
 
+  // Realtime live clock & dynamic dates
+  const {
+    now,
+    timeStr,
+    timeShortStr,
+    fullDateStr,
+    todayDateStr,
+    greeting,
+    monthYearStr,
+  } = useRealtimeClock();
+
   // Navigation & UI state
   const [activeTab, setActiveTab] = useState<string>('hari-ini');
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedDate, setSelectedDate] = useState<string>('2023-10-24');
+  const [selectedDate, setSelectedDate] = useState<string>(() => getTodayDateStr());
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // User Profile & Authentication state
@@ -83,8 +99,13 @@ export const App: React.FC = () => {
     } catch {}
     return initialTimeline;
   });
-  const [weekDays] = useState(initialWeekDays);
+  const [weekDays, setWeekDays] = useState(initialWeekDays);
   const [upcomingTasks] = useState(initialUpcomingTasks);
+
+  // Keep week days in sync when date advances past midnight
+  useEffect(() => {
+    setWeekDays(getCurrentWeekDays(now));
+  }, [todayDateStr]);
 
   // Save timeline to localStorage
   useEffect(() => {
@@ -153,10 +174,15 @@ export const App: React.FC = () => {
 
   // Counts for sidebar badges
   const taskCounts = useMemo(() => {
-    const today = tasks.filter((t) => !t.isOverdue && !t.completed).length;
+    const today = tasks.filter(
+      (t) =>
+        !t.isOverdue &&
+        !t.completed &&
+        (!t.dateStr || t.dateStr === todayDateStr || t.dateStr === '2023-10-24')
+    ).length;
     const overdue = tasks.filter((t) => t.isOverdue && !t.completed).length;
     return { today, all: tasks.length, overdue };
-  }, [tasks]);
+  }, [tasks, todayDateStr]);
 
   // Handlers for Auth
   const handleAuthSuccess = async (user: UserProfile) => {
@@ -227,7 +253,7 @@ export const App: React.FC = () => {
       priority: newTaskData.priority || 'Medium',
       completed: false,
       timeRange: newTaskData.timeRange || '10:00 - 11:00',
-      dateStr: selectedDate || '2023-10-24',
+      dateStr: selectedDate || todayDateStr,
       isGoogleSync: newTaskData.isGoogleSync ?? true,
       subtasks: newTaskData.subtasks || [],
     };
@@ -335,6 +361,8 @@ export const App: React.FC = () => {
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
         onOpenEditProfile={() => setIsEditProfileOpen(true)}
         onLogout={handleLogout}
+        currentTimeText={timeStr}
+        currentDateText={fullDateStr}
       />
 
       <div className="flex flex-1 pt-16">
@@ -359,13 +387,15 @@ export const App: React.FC = () => {
             {/* TAB: HARI INI */}
             {activeTab === 'hari-ini' && (
               <>
-                {/* 1. Header & Daily Progress Ring */}
+                {/* 1. Header & Daily Progress Ring with Realtime Clock */}
                 <DailyProgressRing
                   completedCount={completedCount}
                   totalCount={totalCount}
                   percentage={percentage}
                   streakCount={currentUser?.streakCount || 5}
-                  currentDateText="Selasa, 24 Oktober 2023"
+                  currentDateText={fullDateStr}
+                  currentTimeText={timeStr}
+                  greetingText={greeting}
                   userName={currentUser ? currentUser.name : 'Tamu'}
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
@@ -379,11 +409,12 @@ export const App: React.FC = () => {
                   onDeleteTask={handleDeleteTask}
                 />
 
-                {/* 3. Horizontal Calendar Week Strip */}
+                {/* 3. Horizontal Calendar Week Strip (Current Week) */}
                 <WeekStrip
                   days={weekDays}
                   selectedDate={selectedDate}
                   onSelectDate={setSelectedDate}
+                  monthYearLabel={monthYearStr}
                 />
 
                 {/* 4. Today Tasks Section (Tugas Hari Ini) */}
@@ -393,6 +424,8 @@ export const App: React.FC = () => {
                   onToggleSubtask={handleToggleSubtask}
                   onAddTask={handleAddTask}
                   onDeleteTask={handleDeleteTask}
+                  todayDateStr={todayDateStr}
+                  selectedDate={selectedDate}
                 />
 
                 {/* 5. Timeline & Time-Blocking Hari Ini */}
@@ -434,6 +467,8 @@ export const App: React.FC = () => {
                   onToggleSubtask={handleToggleSubtask}
                   onAddTask={handleAddTask}
                   onDeleteTask={handleDeleteTask}
+                  todayDateStr={todayDateStr}
+                  selectedDate={selectedDate}
                 />
               </div>
             )}

@@ -59,7 +59,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const isGoogleConfigured = Boolean(
     currentGoogleClientId &&
-      currentGoogleClientId !== 'YOUR_GOOGLE_CLIENT_ID' &&
+      !currentGoogleClientId.includes('YOUR_GOOGLE_CLIENT_ID') &&
       currentGoogleClientId.includes('.apps.googleusercontent.com')
   );
 

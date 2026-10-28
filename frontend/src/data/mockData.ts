@@ -1,4 +1,12 @@
 import { Task, TimelineItem, UpcomingTaskItem, WeekDay } from '../types';
+import { getTodayDateStr, getCurrentWeekDays } from '../utils/dateUtils';
+
+const today = new Date();
+const yesterday = new Date(today);
+yesterday.setDate(today.getDate() - 1);
+
+const todayStr = getTodayDateStr(today);
+const yesterdayStr = getTodayDateStr(yesterday);
 
 export const initialTasks: Task[] = [
   // Overdue Task
@@ -10,7 +18,7 @@ export const initialTasks: Task[] = [
     category: 'Kerja',
     dueDate: 'Kemarin',
     dueTime: '17:00',
-    dateStr: '2023-10-23',
+    dateStr: yesterdayStr,
     isOverdue: true,
     isGoogleSync: true,
     subtasks: [
@@ -27,7 +35,7 @@ export const initialTasks: Task[] = [
     priority: 'High',
     category: 'Kerja',
     timeRange: '09:00 - 10:30',
-    dateStr: '2023-10-24',
+    dateStr: todayStr,
     isGoogleSync: true,
     subtasks: [
       { id: 'sub-101', title: 'Periksa typography & contrast', completed: true },
@@ -43,7 +51,7 @@ export const initialTasks: Task[] = [
     priority: 'Medium',
     category: 'Produktif',
     timeRange: '13:00 - 14:30',
-    dateStr: '2023-10-24',
+    dateStr: todayStr,
     isGoogleSync: false,
     subtasks: [
       { id: 'sub-201', title: 'Implementasi Gradient Descent di Python', completed: true },
@@ -57,7 +65,7 @@ export const initialTasks: Task[] = [
     priority: 'Low',
     category: 'Hiburan',
     timeRange: '06:30 - 07:15',
-    dateStr: '2023-10-24',
+    dateStr: todayStr,
     isGoogleSync: false,
     subtasks: [
       { id: 'sub-301', title: 'Pemanasan 5 menit', completed: true },
@@ -73,7 +81,7 @@ export const initialTasks: Task[] = [
     priority: 'High',
     category: 'Kerja',
     timeRange: '09:00 - 11:00',
-    dateStr: '2023-10-23',
+    dateStr: yesterdayStr,
     isGoogleSync: true,
     subtasks: [
       { id: 'sub-p1', title: 'Init Vite monorepo', completed: true },
@@ -87,7 +95,7 @@ export const initialTasks: Task[] = [
     priority: 'Medium',
     category: 'Produktif',
     timeRange: '14:00 - 15:30',
-    dateStr: '2023-10-23',
+    dateStr: yesterdayStr,
     isGoogleSync: false,
     subtasks: [
       { id: 'sub-p3', title: 'Latihan soal distribusi normal', completed: true }
@@ -136,15 +144,7 @@ export const initialTimeline: TimelineItem[] = [
   }
 ];
 
-export const initialWeekDays: WeekDay[] = [
-  { dayName: 'Sen', dayNumber: 23, dateStr: '2023-10-23', isToday: false },
-  { dayName: 'Sel', dayNumber: 24, dateStr: '2023-10-24', isToday: true, hasTasks: true },
-  { dayName: 'Rab', dayNumber: 25, dateStr: '2023-10-25', isToday: false, hasTasks: true },
-  { dayName: 'Kam', dayNumber: 26, dateStr: '2023-10-26', isToday: false },
-  { dayName: 'Jum', dayNumber: 27, dateStr: '2023-10-27', isToday: false },
-  { dayName: 'Sab', dayNumber: 28, dateStr: '2023-10-28', isToday: false },
-  { dayName: 'Min', dayNumber: 29, dateStr: '2023-10-29', isToday: false },
-];
+export const initialWeekDays: WeekDay[] = getCurrentWeekDays();
 
 export const initialUpcomingTasks: UpcomingTaskItem[] = [
   {
