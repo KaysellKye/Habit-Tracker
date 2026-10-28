@@ -6,7 +6,6 @@ import {
   Flame,
   Award,
   ArrowUpRight,
-  Filter,
 } from 'lucide-react';
 import { Task, WeekDay } from '../../types';
 
@@ -42,21 +41,14 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
     { dayName: 'Min', dayNumber: 29, dateStr: '2023-10-29', isToday: false },
   ];
 
-  // Baseline completions to make the chart lively even when few tasks are registered
-  const defaultCompletions = [3, 4, 2, 5, 4, 3, 2];
-
-  // Compute completed tasks per day
-  const chartData: DayData[] = days.map((day, idx) => {
-    const tasksOnDay = tasks.filter((t) => t.dateStr === day.dateStr);
-    const completedTasksOnDay = tasksOnDay.filter((t) => t.completed).length;
-
-    // Use actual counts if available, otherwise combine with baseline for historical curve
-    const completed =
-      tasksOnDay.length > 0 ? completedTasksOnDay : defaultCompletions[idx] || 0;
-    const total =
-      tasksOnDay.length > 0
-        ? tasksOnDay.length
-        : Math.max(completed, defaultCompletions[idx] + 1);
+  // Compute completed tasks per day strictly from actual tasks
+  const chartData: DayData[] = days.map((day) => {
+    // Match by dateStr, or if task has no dateStr attribute, associate with today
+    const tasksOnDay = tasks.filter((t) =>
+      t.dateStr ? t.dateStr === day.dateStr : day.isToday
+    );
+    const completed = tasksOnDay.filter((t) => t.completed).length;
+    const total = tasksOnDay.length;
 
     return {
       dayName: day.dayName,
@@ -76,19 +68,19 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
     chartData[0]
   );
 
-  // SVG dimensions
+  // SVG dimensions & padding with generous headroom so tooltips never clip
   const svgWidth = 620;
   const svgHeight = 220;
   const paddingLeft = 45;
   const paddingRight = 35;
-  const paddingTop = 28;
+  const paddingTop = 36;
   const paddingBottom = 45;
 
   const chartWidth = svgWidth - paddingLeft - paddingRight;
   const chartHeight = svgHeight - paddingTop - paddingBottom;
 
-  // Max Y value (at least 6 for clean scaling)
-  const maxVal = Math.max(...chartData.map((d) => d.completed), 6);
+  // Max Y value (at least 4 for clean readable scale)
+  const maxVal = Math.max(...chartData.map((d) => d.completed), 4);
   const ySteps = [0, Math.round(maxVal / 2), maxVal];
 
   // Map data points to SVG (x, y) coordinates
@@ -109,7 +101,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
       const p2 = pts[i + 1];
       const p3 = pts[i + 2 < pts.length ? i + 2 : i + 1];
 
-      // Tension factor
+      // Tension factor for smooth curve
       const tension = 0.2;
       const cp1x = p1.x + (p2.x - p0.x) * tension;
       const cp1y = p1.y + (p2.y - p0.y) * tension;
@@ -199,16 +191,22 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
         <div className="p-3 bg-slate-50/80 rounded-2xl border border-slate-100">
           <span className="text-[11px] text-slate-500 block font-medium">Hari Tersibuk</span>
           <p className="text-lg sm:text-xl font-bold font-mono text-amber-600 mt-0.5">
-            {peakDay.dayName}{' '}
-            <span className="text-xs font-normal text-slate-500">
-              ({peakDay.completed} tuntas)
-            </span>
+            {peakDay.completed > 0 ? (
+              <>
+                {peakDay.dayName}{' '}
+                <span className="text-xs font-normal text-slate-500">
+                  ({peakDay.completed} tuntas)
+                </span>
+              </>
+            ) : (
+              <span className="text-sm font-normal text-slate-400">Belum ada</span>
+            )}
           </p>
         </div>
       </div>
 
-      {/* SVG Chart Container */}
-      <div className="relative w-full overflow-hidden select-none">
+      {/* SVG Chart Container with relative positioning for point-attached tooltip */}
+      <div className="relative w-full pt-2 select-none">
         <svg
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           className="w-full h-auto overflow-visible"
@@ -269,7 +267,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
             strokeLinejoin="round"
           />
 
-          {/* Data Points & Values */}
+          {/* Interactive Data Points */}
           {points.map((pt, i) => {
             const isHovered = hoveredIndex === i;
             const isToday = pt.data.isToday;
@@ -281,6 +279,14 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                 onMouseEnter={() => setHoveredIndex(i)}
                 onMouseLeave={() => setHoveredIndex(null)}
               >
+                {/* Invisible large hover hit area for easy mouse/touch targeting */}
+                <circle
+                  cx={pt.x}
+                  cy={pt.y}
+                  r={20}
+                  fill="transparent"
+                />
+
                 {/* Vertical guide line on hover */}
                 {isHovered && (
                   <line
@@ -294,14 +300,14 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                   />
                 )}
 
-                {/* Outer halo */}
+                {/* Outer halo circle */}
                 <circle
                   cx={pt.x}
                   cy={pt.y}
                   r={isHovered ? 8 : isToday ? 6 : 5}
                   fill="#FFFFFF"
-                  stroke="#2563EB"
-                  strokeWidth={isHovered ? 3.5 : 2.5}
+                  stroke={isToday ? '#2563EB' : isHovered ? '#1D4ED8' : '#3B82F6'}
+                  strokeWidth={isHovered ? 3.5 : isToday ? 3 : 2}
                   filter="url(#pointShadow)"
                   className="transition-all duration-150"
                 />
@@ -310,32 +316,9 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                 <circle
                   cx={pt.x}
                   cy={pt.y}
-                  r={isHovered ? 3.5 : 2}
+                  r={isHovered ? 3.5 : isToday ? 2.5 : 2}
                   fill={isHovered ? '#1D4ED8' : '#2563EB'}
                 />
-
-                {/* Always visible or hover value label */}
-                <g transform={`translate(${pt.x}, ${pt.y - 12})`}>
-                  <rect
-                    x="-12"
-                    y="-16"
-                    width="24"
-                    height="16"
-                    rx="6"
-                    fill={isToday ? '#2563EB' : isHovered ? '#1E293B' : '#F1F5F9'}
-                  />
-                  <text
-                    x="0"
-                    y="-5"
-                    textAnchor="middle"
-                    fill={isToday || isHovered ? '#FFFFFF' : '#475569'}
-                    fontSize="10"
-                    fontFamily="JetBrains Mono, monospace"
-                    fontWeight="700"
-                  >
-                    {pt.data.completed}
-                  </text>
-                </g>
 
                 {/* Bottom X-axis day name & date */}
                 <text
@@ -365,23 +348,45 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
           })}
         </svg>
 
-        {/* Dynamic Tooltip on Hover */}
-        {hoveredIndex !== null && (
-          <div
-            className="absolute -top-3 pointer-events-none transform -translate-x-1/2 bg-slate-900 text-white px-3 py-1.5 rounded-xl text-xs shadow-xl border border-slate-700 z-20 flex flex-col items-center whitespace-nowrap animate-in fade-in zoom-in-95 duration-150"
-            style={{
-              left: `${(points[hoveredIndex].x / svgWidth) * 100}%`,
-            }}
-          >
-            <span className="font-bold text-slate-100">
-              {points[hoveredIndex].data.dayName}, {points[hoveredIndex].data.dayNumber} Okt
-            </span>
-            <span className="text-[11px] text-blue-300 font-mono">
-              ✓ {points[hoveredIndex].data.completed} tugas diselesaikan
-            </span>
-            <div className="w-2 h-2 bg-slate-900 rotate-45 -mb-2 mt-1 border-r border-b border-slate-700" />
-          </div>
-        )}
+        {/* Dynamic Tooltip: Strictly attached directly above the hovered point */}
+        {hoveredIndex !== null && points[hoveredIndex] && (() => {
+          const pt = points[hoveredIndex];
+          // If point is close to the top edge (headroom < 65px), flip tooltip below the point
+          const isNearTop = pt.y < 65;
+
+          return (
+            <div
+              className={`absolute pointer-events-none z-30 flex flex-col items-center -translate-x-1/2 transition-all duration-150 animate-in fade-in zoom-in-95 ${
+                isNearTop ? 'translate-y-3.5' : '-translate-y-full -mt-3'
+              }`}
+              style={{
+                left: `${(pt.x / svgWidth) * 100}%`,
+                top: `${(pt.y / svgHeight) * 100}%`,
+              }}
+            >
+              {/* Tooltip Card Box */}
+              <div className="bg-slate-900/95 backdrop-blur-xs text-white px-3 py-1.5 rounded-xl shadow-xl border border-slate-700/80 text-center whitespace-nowrap">
+                <span className="font-bold text-slate-100 text-[11px] block">
+                  {pt.data.dayName}, {pt.data.dayNumber} Okt {pt.data.isToday ? '• Hari Ini' : ''}
+                </span>
+                <span className="text-[11px] font-semibold text-blue-300 font-mono mt-0.5 block">
+                  {pt.data.completed > 0
+                    ? `✓ ${pt.data.completed} tugas diselesaikan`
+                    : 'Belum ada tugas selesai'}
+                </span>
+              </div>
+
+              {/* Triangle Arrow pointing strictly at the circle point */}
+              <div
+                className={`w-0 h-0 border-x-4 border-x-transparent ${
+                  isNearTop
+                    ? '-order-1 border-b-4 border-b-slate-900/95'
+                    : 'border-t-4 border-t-slate-900/95'
+                }`}
+              />
+            </div>
+          );
+        })()}
       </div>
 
       {/* Legend & Insights */}

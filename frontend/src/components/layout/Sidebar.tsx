@@ -92,7 +92,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
               <Sparkles className="w-4 h-4" />
             </div>
-            <span className="font-bold text-slate-900">TimeBlock</span>
+            <span className="font-bold text-slate-900">Habit Tracker</span>
           </div>
           <button
             onClick={onCloseMobile}

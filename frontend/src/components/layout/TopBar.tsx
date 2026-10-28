@@ -58,7 +58,7 @@ export const TopBar: React.FC<TopBarProps> = ({
             </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg text-slate-900 tracking-tight leading-none">
-                TimeBlock
+                Habit Tracker
               </span>
               <span className="text-[11px] text-slate-500 font-medium mt-0.5">
                 {activeTabTitle}

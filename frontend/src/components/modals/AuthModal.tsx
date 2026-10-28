@@ -222,7 +222,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <Sparkles className="w-6 h-6" />
           </div>
           <h3 className="text-xl font-bold text-slate-900">
-            {mode === 'login' ? 'Masuk ke TimeBlock' : 'Buat Akun Baru'}
+            {mode === 'login' ? 'Masuk ke Habit Tracker' : 'Buat Akun Baru'}
           </h3>
           <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
             Akses daftar tugas Anda dari HP, tablet, maupun laptop dengan Google OAuth 2.0 resmi!
