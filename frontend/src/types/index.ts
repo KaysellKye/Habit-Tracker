@@ -81,3 +81,20 @@ export interface UserProfile {
   streakCount: number;
   createdAt?: string;
 }
+
+export type BuiltinAlarmTone = 'bell' | 'chime' | 'digital' | 'gentle' | 'radar';
+
+export interface AlarmItem {
+  id: string;
+  time: string; // "07:30" (24h)
+  title: string;
+  enabled: boolean;
+  repeatDays: number[]; // [0,1,2,3,4,5,6] (0 = Sunday, 1 = Monday), empty = one-time
+  soundType: 'builtin' | 'custom';
+  builtinTone: BuiltinAlarmTone;
+  customMediaUrl?: string; // Data URL or object URL
+  customMediaName?: string; // filename e.g. "my_song.mp3" or "alarm.mp4"
+  customMediaType?: 'audio' | 'video';
+  volume: number; // 0.1 to 1.0
+  snoozeMinutes?: number; // default 5
+}

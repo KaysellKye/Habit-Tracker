@@ -496,7 +496,7 @@ app.post('/api/tasks', authenticateToken, (req: AuthRequest, res: Response) => {
     }
 
     const newTask: StoredTask = {
-      id: `task-${uuidv4()}`,
+      id: req.body.id || `task-${uuidv4()}`,
       userId: req.userId!,
       title: title.trim(),
       completed: false,
@@ -505,7 +505,7 @@ app.post('/api/tasks', authenticateToken, (req: AuthRequest, res: Response) => {
       timeRange,
       dueDate,
       dueTime,
-      dateStr: dateStr || '2023-10-24',
+      dateStr: dateStr || new Date().toISOString().split('T')[0],
       isOverdue: isOverdue || false,
       isGoogleSync: isGoogleSync ?? true,
       subtasks: subtasks || [],

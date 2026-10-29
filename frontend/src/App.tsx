@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { TopBar } from './components/layout/TopBar';
 import { Sidebar } from './components/layout/Sidebar';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
@@ -15,6 +15,9 @@ import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
 import { AuthModal } from './components/modals/AuthModal';
 import { EditProfileModal } from './components/modals/EditProfileModal';
 import { TimeBlockModal } from './components/modals/TimeBlockModal';
+import { AlarmModal } from './components/modals/AlarmModal';
+import { AlarmRingingModal } from './components/modals/AlarmRingingModal';
+import { CategoryModal } from './components/modals/CategoryModal';
 import { ProductivityLineChart } from './components/stats/ProductivityLineChart';
 import { CategoryManager } from './components/settings/CategoryManager';
 import { useTheme } from './context/ThemeContext';
@@ -30,12 +33,19 @@ import {
   DEFAULT_CATEGORIES,
 } from './utils/categoryUtils';
 import {
+  loadUserAlarms,
+  saveUserAlarms,
+  hydrateAlarmMedia,
+  startAlarmSound,
+  stopCurrentRingingAlarm,
+} from './utils/audioAlarmEngine';
+import {
   initialTasks,
   initialTimeline,
   initialWeekDays,
   initialUpcomingTasks,
 } from './data/mockData';
-import { Task, Category, TimelineItem, UserProfile, CategoryItem } from './types';
+import { Task, Category, TimelineItem, UserProfile, CategoryItem, AlarmItem } from './types';
 import {
   apiGetMe,
   apiGetTasks,
@@ -59,6 +69,7 @@ import {
   Sun,
   Moon,
   Laptop,
+  Bell,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -94,6 +105,9 @@ export const App: React.FC = () => {
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const [editingTimeBlock, setEditingTimeBlock] = useState<TimelineItem | null>(null);
   const [isTimeBlockModalOpen, setIsTimeBlockModalOpen] = useState(false);
+  const [isAlarmModalOpen, setIsAlarmModalOpen] = useState(false);
+  const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+  const [ringingAlarm, setRingingAlarm] = useState<AlarmItem | null>(null);
 
   // Custom Categories state (persisted)
   const [categories, setCategories] = useState<CategoryItem[]>(() => loadUserCategories());
@@ -101,6 +115,81 @@ export const App: React.FC = () => {
   const handleUpdateCategories = (newCategories: CategoryItem[]) => {
     setCategories(newCategories);
     saveUserCategories(newCategories);
+  };
+
+  // Alarm state (persisted & hydrated from IndexedDB)
+  const [alarms, setAlarms] = useState<AlarmItem[]>(() => loadUserAlarms());
+
+  const handleUpdateAlarms = (newAlarms: AlarmItem[]) => {
+    setAlarms(newAlarms);
+    saveUserAlarms(newAlarms);
+  };
+
+  // Restore custom audio/video media URLs from IndexedDB on mount
+  useEffect(() => {
+    hydrateAlarmMedia(alarms).then((hydrated) => {
+      setAlarms(hydrated);
+    });
+  }, []);
+
+  // Real-time alarm engine watching ticking clock
+  const lastFiredMinuteRef = useRef<string>('');
+
+  useEffect(() => {
+    const hh = String(now.getHours()).padStart(2, '0');
+    const mm = String(now.getMinutes()).padStart(2, '0');
+    const currentHHMM = `${hh}:${mm}`;
+    const dayOfWeek = now.getDay(); // 0 = Min, 1 = Sen...
+
+    if (lastFiredMinuteRef.current !== currentHHMM) {
+      const match = alarms.find((alarm) => {
+        if (!alarm.enabled) return false;
+        if (alarm.time !== currentHHMM) return false;
+        if (alarm.repeatDays && alarm.repeatDays.length > 0) {
+          return alarm.repeatDays.includes(dayOfWeek);
+        }
+        return true;
+      });
+
+      if (match && !ringingAlarm) {
+        lastFiredMinuteRef.current = currentHHMM;
+        setRingingAlarm(match);
+        startAlarmSound(match);
+
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification(`⏰ Alarm: ${match.title}`, {
+            body: `Waktu menunjukkan pukul ${match.time}. Ketuk untuk membuka aplikasi!`,
+            icon: '/favicon.ico',
+          });
+        }
+      }
+    }
+  }, [now, alarms, ringingAlarm]);
+
+  const handleDismissRingingAlarm = () => {
+    stopCurrentRingingAlarm();
+    setRingingAlarm(null);
+  };
+
+  const handleSnoozeRingingAlarm = (minutes: number) => {
+    stopCurrentRingingAlarm();
+    setRingingAlarm(null);
+    if (!ringingAlarm) return;
+
+    const snoozeDate = new Date(Date.now() + minutes * 60 * 1000);
+    const snoozeTime = `${String(snoozeDate.getHours()).padStart(2, '0')}:${String(
+      snoozeDate.getMinutes()
+    ).padStart(2, '0')}`;
+
+    const snoozed: AlarmItem = {
+      ...ringingAlarm,
+      id: `alarm-snooze-${Date.now()}`,
+      time: snoozeTime,
+      title: `(Tunda ${minutes}m) ${ringingAlarm.title}`,
+      repeatDays: [],
+      enabled: true,
+    };
+    handleUpdateAlarms([snoozed, ...alarms]);
   };
 
   // Data state
@@ -275,19 +364,30 @@ export const App: React.FC = () => {
   };
 
   const handleAddTask = (newTaskData: Partial<Task>) => {
+    const targetDate = newTaskData.dateStr || selectedDate || todayDateStr;
     const newTask: Task = {
       id: `task-${Date.now()}`,
       title: newTaskData.title || 'Tugas Baru',
-      category: newTaskData.category || 'Kerja',
+      category: newTaskData.category || (categories[0]?.name || 'Kerja'),
       priority: newTaskData.priority || 'Medium',
       completed: false,
       timeRange: newTaskData.timeRange || '10:00 - 11:00',
-      dateStr: newTaskData.dateStr || selectedDate || todayDateStr,
+      dateStr: targetDate,
       isGoogleSync: newTaskData.isGoogleSync ?? true,
       subtasks: newTaskData.subtasks || [],
     };
 
     setTasks((prev) => [newTask, ...prev]);
+
+    // If current selected category filter would hide the new task, reset to 'all' so task is visible!
+    if (selectedCategory !== 'all' && newTask.category !== selectedCategory) {
+      setSelectedCategory('all');
+    }
+
+    // If task was scheduled for today, make sure calendar view focuses on today so it appears immediately!
+    if (targetDate === todayDateStr && selectedDate !== todayDateStr) {
+      setSelectedDate(todayDateStr);
+    }
 
     if (getToken()) {
       apiCreateTask(newTask)
@@ -367,7 +467,7 @@ export const App: React.FC = () => {
       case 'kalender':
         return 'Kalender Terpadu';
       case 'analitik':
-        return 'Analisa Produktivitas';
+        return 'Statistik Produktivitas';
       case 'pengaturan':
         return 'Pengaturan';
       default:
@@ -392,6 +492,8 @@ export const App: React.FC = () => {
         onLogout={handleLogout}
         currentTimeText={timeStr}
         currentDateText={fullDateStr}
+        onOpenAlarmModal={() => setIsAlarmModalOpen(true)}
+        activeAlarmsCount={alarms.filter((a) => a.enabled).length}
       />
 
       <div className="flex flex-1 pt-16">
@@ -412,7 +514,7 @@ export const App: React.FC = () => {
           onOpenAuthModal={() => setIsAuthModalOpen(true)}
           onOpenEditProfile={() => setIsEditProfileOpen(true)}
           categories={categories}
-          onManageCategories={() => setActiveTab('pengaturan')}
+          onManageCategories={() => setIsCategoryModalOpen(true)}
         />
 
         {/* 3. Main Content Area */}
@@ -546,11 +648,11 @@ export const App: React.FC = () => {
               </div>
             )}
 
-            {/* TAB: ANALISA */}
+            {/* TAB: STATISTIK */}
             {activeTab === 'analitik' && (
               <div className="flex flex-col gap-6">
                 <div className="pb-2 border-b border-slate-200 dark:border-slate-800">
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Analisa Produktivitas</h2>
+                  <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Statistik Produktivitas</h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
                     Evaluasi komprehensif performa, tren pengerjaan tugas, dan konsistensi harian Anda
                   </p>
@@ -748,6 +850,30 @@ export const App: React.FC = () => {
                   </div>
                 </div>
 
+                {/* Alarm & Ringtone Management Card */}
+                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 flex items-center justify-center font-bold flex-shrink-0">
+                      <Bell className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-slate-900 dark:text-white">
+                        Alarm & Nada Dering Aktivitas
+                      </h4>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {alarms.filter((a) => a.enabled).length} alarm aktif • Mendukung file audio & video kustom
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsAlarmModalOpen(true)}
+                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold rounded-xl shadow-xs transition-all active:scale-95 flex-shrink-0"
+                  >
+                    Atur Alarm
+                  </button>
+                </div>
+
                 {/* Category Management Card (Tambah / Ganti Kategori Bebas) */}
                 <CategoryManager
                   categories={categories}
@@ -815,6 +941,26 @@ export const App: React.FC = () => {
         initialBlock={editingTimeBlock}
         onSave={handleSaveTimeBlock}
         onDelete={handleDeleteTimeBlock}
+      />
+
+      <CategoryModal
+        isOpen={isCategoryModalOpen}
+        onClose={() => setIsCategoryModalOpen(false)}
+        categories={categories}
+        onUpdateCategories={handleUpdateCategories}
+      />
+
+      <AlarmModal
+        isOpen={isAlarmModalOpen}
+        onClose={() => setIsAlarmModalOpen(false)}
+        alarms={alarms}
+        onUpdateAlarms={handleUpdateAlarms}
+      />
+
+      <AlarmRingingModal
+        alarm={ringingAlarm}
+        onDismiss={handleDismissRingingAlarm}
+        onSnooze={handleSnoozeRingingAlarm}
       />
     </div>
   );

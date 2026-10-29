@@ -27,6 +27,8 @@ interface TopBarProps {
   onLogout: () => void;
   currentTimeText?: string;
   currentDateText?: string;
+  onOpenAlarmModal?: () => void;
+  activeAlarmsCount?: number;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -40,6 +42,8 @@ export const TopBar: React.FC<TopBarProps> = ({
   onLogout,
   currentTimeText,
   currentDateText,
+  onOpenAlarmModal,
+  activeAlarmsCount = 0,
 }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -149,13 +153,19 @@ export const TopBar: React.FC<TopBarProps> = ({
             <Search className="w-5 h-5" />
           </button>
 
-          {/* Notification Button with Badge */}
+          {/* Alarm & Notification Button with Badge */}
           <button
-            aria-label="Notifikasi"
+            onClick={onOpenAlarmModal}
+            aria-label="Alarm & Pengingat"
+            title="Kelola Alarm & Nada Dering"
             className="relative w-10 h-10 flex items-center justify-center rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-600 ring-2 ring-white dark:ring-slate-900"></span>
+            {activeAlarmsCount > 0 && (
+              <span className="absolute top-1.5 right-1.5 min-w-[16px] h-4 px-1 rounded-full bg-amber-500 ring-2 ring-white dark:ring-slate-900 text-[10px] font-bold text-white flex items-center justify-center">
+                {activeAlarmsCount}
+              </span>
+            )}
           </button>
 
           {/* User Profile / Auth Button */}

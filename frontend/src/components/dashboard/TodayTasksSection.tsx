@@ -53,7 +53,11 @@ export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
     if (t.isOverdue) return false;
     if (!t.dateStr) return true;
     // Match today, or migrate legacy 2023-10-24 sample tasks seamlessly to today
-    return t.dateStr === effectiveDate || (t.dateStr === '2023-10-24' && effectiveDate === effectiveToday);
+    return (
+      t.dateStr === effectiveDate ||
+      (effectiveDate === effectiveToday && t.dateStr === effectiveToday) ||
+      (t.dateStr === '2023-10-24' && effectiveDate === effectiveToday)
+    );
   });
 
   const handleQuickSubmit = (e: React.FormEvent) => {
@@ -68,6 +72,7 @@ export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
       completed: false,
       subtasks: [],
       isGoogleSync: true,
+      dateStr: effectiveDate || effectiveToday,
     });
 
     setQuickInput('');
