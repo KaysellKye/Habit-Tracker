@@ -15,10 +15,12 @@ import {
   Sun,
   Moon,
   Edit3,
+  Mail,
 } from 'lucide-react';
 import { Category, UserProfile, CategoryItem } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
 import { DEFAULT_CATEGORIES, COLOR_STYLES } from '../../utils/categoryUtils';
+import { AppBrandLogo } from '../common/AppBrandLogo';
 
 interface SidebarProps {
   activeTab: string;
@@ -38,6 +40,8 @@ interface SidebarProps {
   onOpenEditProfile: () => void;
   categories?: CategoryItem[];
   onManageCategories?: () => void;
+  customLogo?: string;
+  onOpenCustomLogo?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -54,6 +58,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenEditProfile,
   categories = DEFAULT_CATEGORIES,
   onManageCategories,
+  customLogo,
+  onOpenCustomLogo,
 }) => {
   const { isDark, toggleTheme } = useTheme();
 
@@ -95,9 +101,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Mobile Header in drawer */}
         <div className="flex items-center justify-between md:hidden pb-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
-              <Sparkles className="w-4 h-4" />
-            </div>
+            <AppBrandLogo
+              logo={customLogo}
+              size="md"
+              onEdit={onOpenCustomLogo}
+            />
             <span className="font-bold text-slate-900 dark:text-white">Habit Tracker</span>
           </div>
           <button
@@ -271,6 +279,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <p className="text-[10px] font-mono text-slate-500 dark:text-slate-400 truncate">
                   @{currentUser.username}
                 </p>
+                {currentUser.email && (
+                  <p
+                    className="text-[10px] text-slate-500 dark:text-slate-400 truncate flex items-center gap-1 mt-0.5"
+                    title={`Email terdaftar: ${currentUser.email}`}
+                  >
+                    <Mail className="w-2.5 h-2.5 text-blue-500 flex-shrink-0" />
+                    <span className="truncate">{currentUser.email}</span>
+                  </p>
+                )}
               </div>
             </div>
             <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium group-hover:underline flex-shrink-0">

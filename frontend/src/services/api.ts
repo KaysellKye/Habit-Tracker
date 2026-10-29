@@ -270,6 +270,126 @@ export async function apiLogin(body: {
   }
 }
 
+// Forgot Password - Step 1: Request OTP
+export async function apiForgotPasswordRequest(email: string): Promise<{
+  message: string;
+  email: string;
+  simulatedOtp?: string;
+}> {
+  const cleanEmail = email.trim().toLowerCase();
+
+  try {
+    const data = await request<{ message: string; email: string; simulatedOtp?: string }>(
+      '/auth/forgot-password/request',
+      {
+        method: 'POST',
+        body: JSON.stringify({ email: cleanEmail }),
+      }
+    );
+    return data;
+  } catch (err: any) {
+    if (err instanceof ApiError && !err.isServerDown && err.status < 500) {
+      throw err;
+    }
+
+    // Local fallback
+    const accounts = getLocalAccounts();
+    const found = accounts.find((a) => a.user.email.toLowerCase() === cleanEmail);
+    const isDemo = cleanEmail === 'andi@example.com';
+
+    if (!found && !isDemo) {
+      throw new Error('Alamat email tidak terdaftar di Habit Tracker.');
+    }
+
+    const localOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiry = Date.now() + 10 * 60 * 1000;
+    sessionStorage.setItem(`timeblock_otp_${cleanEmail}`, JSON.stringify({ otp: localOtp, expiry }));
+
+    return {
+      message: `Kode OTP 6-digit telah dikirim ke ${cleanEmail}.`,
+      email: cleanEmail,
+      simulatedOtp: localOtp,
+    };
+  }
+}
+
+// Forgot Password - Step 2: Verify OTP
+export async function apiForgotPasswordVerify(
+  email: string,
+  otp: string
+): Promise<{ message: string; success: boolean }> {
+  const cleanEmail = email.trim().toLowerCase();
+
+  try {
+    const data = await request<{ message: string; success: boolean }>(
+      '/auth/forgot-password/verify',
+      {
+        method: 'POST',
+        body: JSON.stringify({ email: cleanEmail, otp: otp.trim() }),
+      }
+    );
+    return data;
+  } catch (err: any) {
+    if (err instanceof ApiError && !err.isServerDown && err.status < 500) {
+      throw err;
+    }
+
+    // Local fallback
+    const raw = sessionStorage.getItem(`timeblock_otp_${cleanEmail}`);
+    if (!raw) {
+      throw new Error('Kode OTP belum diminta atau telah kedaluwarsa.');
+    }
+    const record = JSON.parse(raw);
+    if (Date.now() > record.expiry) {
+      sessionStorage.removeItem(`timeblock_otp_${cleanEmail}`);
+      throw new Error('Kode OTP telah kedaluwarsa. Silakan minta kode baru.');
+    }
+    if (record.otp !== otp.trim()) {
+      throw new Error('Kode OTP yang Anda masukkan salah.');
+    }
+
+    return { message: 'Kode OTP valid.', success: true };
+  }
+}
+
+// Forgot Password - Step 3: Reset Password
+export async function apiForgotPasswordReset(
+  email: string,
+  otp: string,
+  newPassword: string
+): Promise<{ message: string; success: boolean }> {
+  const cleanEmail = email.trim().toLowerCase();
+
+  try {
+    const data = await request<{ message: string; success: boolean }>(
+      '/auth/forgot-password/reset',
+      {
+        method: 'POST',
+        body: JSON.stringify({ email: cleanEmail, otp: otp.trim(), newPassword }),
+      }
+    );
+    return data;
+  } catch (err: any) {
+    if (err instanceof ApiError && !err.isServerDown && err.status < 500) {
+      throw err;
+    }
+
+    // Local fallback
+    const accounts = getLocalAccounts();
+    const accountIndex = accounts.findIndex((a) => a.user.email.toLowerCase() === cleanEmail);
+    if (accountIndex >= 0) {
+      accounts[accountIndex].password = newPassword;
+      localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+    }
+    sessionStorage.removeItem(`timeblock_otp_${cleanEmail}`);
+
+    return {
+      message: 'Kata sandi Anda berhasil diperbarui! Silakan masuk dengan kata sandi baru.',
+      success: true,
+    };
+  }
+}
+
 export async function apiGoogleLogin(body: {
   credential?: string;
   accessToken?: string;

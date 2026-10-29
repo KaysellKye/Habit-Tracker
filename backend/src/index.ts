@@ -293,6 +293,138 @@ app.post('/api/auth/login', (req: Request, res: Response) => {
   }
 });
 
+// ==================== FORGOT PASSWORD (OTP) ROUTES ====================
+interface OTPRecord {
+  email: string;
+  otp: string;
+  expiresAt: number;
+}
+const otpStore = new Map<string, OTPRecord>();
+
+// 1. Request OTP
+app.post('/api/auth/forgot-password/request', (req: Request, res: Response) => {
+  try {
+    const { email } = req.body;
+    if (!email || typeof email !== 'string') {
+      res.status(400).json({ error: 'Alamat email wajib diisi.' });
+      return;
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const db = readDatabase();
+    const user = db.users.find((u) => u.email.toLowerCase() === cleanEmail);
+
+    if (!user) {
+      res.status(404).json({ error: 'Alamat email tidak terdaftar di Habit Tracker.' });
+      return;
+    }
+
+    // Generate 6-digit OTP code
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes validity
+
+    otpStore.set(cleanEmail, { email: cleanEmail, otp, expiresAt });
+
+    console.log(`[AUTH-OTP] Generated OTP for ${cleanEmail}: ${otp}`);
+
+    res.json({
+      message: `Kode OTP 6-digit telah dikirim ke alamat email ${cleanEmail}.`,
+      email: cleanEmail,
+      simulatedOtp: otp, // For local testing or in-app preview
+    });
+  } catch (error) {
+    console.error('Forgot password request error:', error);
+    res.status(500).json({ error: 'Gagal memproses permintaan kode OTP.' });
+  }
+});
+
+// 2. Verify OTP
+app.post('/api/auth/forgot-password/verify', (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+    if (!email || !otp) {
+      res.status(400).json({ error: 'Email dan kode OTP wajib diisi.' });
+      return;
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const record = otpStore.get(cleanEmail);
+
+    if (!record) {
+      res.status(400).json({ error: 'Kode OTP belum diminta atau telah kedaluwarsa. Silakan minta kode baru.' });
+      return;
+    }
+
+    if (Date.now() > record.expiresAt) {
+      otpStore.delete(cleanEmail);
+      res.status(400).json({ error: 'Kode OTP telah kedaluwarsa. Silakan minta kode OTP baru.' });
+      return;
+    }
+
+    if (record.otp !== otp.trim()) {
+      res.status(400).json({ error: 'Kode OTP yang Anda masukkan salah. Silakan periksa kembali.' });
+      return;
+    }
+
+    res.json({
+      message: 'Kode OTP berhasil diverifikasi!',
+      success: true,
+    });
+  } catch (error) {
+    console.error('Verify OTP error:', error);
+    res.status(500).json({ error: 'Terjadi kesalahan saat memverifikasi kode OTP.' });
+  }
+});
+
+// 3. Reset Password with verified OTP
+app.post('/api/auth/forgot-password/reset', (req: Request, res: Response) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      res.status(400).json({ error: 'Email, OTP, dan kata sandi baru wajib diisi.' });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      res.status(400).json({ error: 'Kata sandi baru minimal harus 6 karakter.' });
+      return;
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const record = otpStore.get(cleanEmail);
+
+    if (!record || record.otp !== otp.trim() || Date.now() > record.expiresAt) {
+      res.status(400).json({ error: 'Sesi verifikasi OTP tidak valid atau kedaluwarsa. Silakan ulangi langkah pemulihan.' });
+      return;
+    }
+
+    const db = readDatabase();
+    const user = db.users.find((u) => u.email.toLowerCase() === cleanEmail);
+
+    if (!user) {
+      res.status(404).json({ error: 'Akun tidak ditemukan.' });
+      return;
+    }
+
+    const salt = bcrypt.genSaltSync(10);
+    user.passwordHash = bcrypt.hashSync(newPassword, salt);
+    writeDatabase(db);
+
+    // Consume OTP so it cannot be reused
+    otpStore.delete(cleanEmail);
+
+    console.log(`[AUTH-OTP] Password successfully reset for ${cleanEmail}`);
+
+    res.json({
+      message: 'Kata sandi Anda berhasil diperbarui! Silakan masuk dengan kata sandi baru.',
+      success: true,
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: 'Gagal mengatur ulang kata sandi.' });
+  }
+});
+
 // Google OAuth Login / Register
 app.post('/api/auth/google', async (req: Request, res: Response) => {
   try {

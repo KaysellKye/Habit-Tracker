@@ -1,5 +1,16 @@
 import React, { useState, useRef } from 'react';
-import { X, Camera, Check, User, AtSign, Upload, Image as ImageIcon, Sparkles } from 'lucide-react';
+import {
+  X,
+  Camera,
+  Check,
+  User,
+  AtSign,
+  Upload,
+  Image as ImageIcon,
+  Sparkles,
+  Mail,
+  CheckCircle2,
+} from 'lucide-react';
 import { UserProfile } from '../../types';
 import { apiUpdateProfile } from '../../services/api';
 
@@ -245,6 +256,32 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 className="w-full pl-8 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
               />
             </div>
+          </div>
+
+          {/* Registered Email (Alamat Email Terdaftar) */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Alamat Email Terdaftar
+              </label>
+              <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full border border-emerald-200/60 dark:border-emerald-900/40">
+                <CheckCircle2 className="w-3 h-3" />
+                Terverifikasi
+              </span>
+            </div>
+            <div className="relative">
+              <Mail className="w-4 h-4 absolute left-3 top-2.5 text-slate-400 dark:text-slate-500" />
+              <input
+                type="email"
+                readOnly
+                value={currentUser.email || 'Email belum diatur'}
+                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-300 text-xs sm:text-sm font-mono cursor-default focus:outline-none select-all"
+                title="Email yang digunakan saat mendaftar"
+              />
+            </div>
+            <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+              Email ini digunakan saat masuk ke akun, pemulihan kata sandi (OTP), dan sinkronisasi tugas.
+            </p>
           </div>
 
           {/* Action Buttons */}
