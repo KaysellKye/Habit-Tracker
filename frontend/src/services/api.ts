@@ -10,12 +10,14 @@ const ACCOUNTS_KEY = 'timeblock_local_accounts';
 export class ApiError extends Error {
   isServerDown: boolean;
   status: number;
+  field?: string;
 
-  constructor(message: string, status = 500, isServerDown = false) {
+  constructor(message: string, status = 500, isServerDown = false, field?: string) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.isServerDown = isServerDown;
+    this.field = field;
   }
 }
 
@@ -122,7 +124,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
           ? 'Server backend tidak dapat dihubungi.'
           : 'Terjadi kesalahan saat memproses permintaan.');
 
-      throw new ApiError(errorMessage, response.status, isGatewayFailure);
+      throw new ApiError(errorMessage, response.status, isGatewayFailure, data?.field);
     }
 
     return data as T;
@@ -172,14 +174,18 @@ export async function apiRegister(body: {
     console.info('Backend server unreachable or proxy error. Using local accounts fallback.');
 
     // 2. Fallback to local accounts
-    const existing = getLocalAccounts().find(
-      (a) =>
-        a.user.username.toLowerCase() === cleanUsername ||
-        a.user.email.toLowerCase() === cleanEmail
+    const existingEmail = getLocalAccounts().find(
+      (a) => a.user.email.toLowerCase() === cleanEmail
     );
+    if (existingEmail) {
+      throw new ApiError('Email sudah terdaftar', 400, false, 'email');
+    }
 
-    if (existing) {
-      throw new Error('Username atau Email ini sudah terdaftar.');
+    const existingUsername = getLocalAccounts().find(
+      (a) => a.user.username.toLowerCase() === cleanUsername
+    );
+    if (existingUsername) {
+      throw new ApiError('Username sudah digunakan. Silakan pilih username lain', 400, false, 'username');
     }
 
     const newUser: UserProfile = {

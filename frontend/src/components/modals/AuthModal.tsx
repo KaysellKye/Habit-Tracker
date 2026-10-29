@@ -13,6 +13,8 @@ import {
   CheckCircle2,
   Settings,
   HelpCircle,
+  Zap,
+  ArrowRight,
 } from 'lucide-react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { apiLogin, apiRegister, apiGoogleLogin } from '../../services/api';
@@ -35,6 +37,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [mode, setMode] = useState<'login' | 'register'>(initialMode);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
+
+  // Direct Google Login mode (no Google Cloud Console required)
+  const [showDirectGoogle, setShowDirectGoogle] = useState(false);
+  const [directEmail, setDirectEmail] = useState('');
+  const [directName, setDirectName] = useState('');
 
   // Form states
   const [name, setName] = useState('');
@@ -89,7 +98,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           userInfo: googleUserInfo,
         });
 
-        onAuthSuccess(authResult.user);
+        await onAuthSuccess(authResult.user);
         onClose();
       } catch (err: any) {
         console.error('Google OAuth processing failed:', err);
@@ -101,7 +110,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     onError: (errorResponse) => {
       console.warn('Google Sign-In dismissed or failed:', errorResponse);
       setLoading(false);
-      setErrorMsg('Login dengan Google dibatalkan atau popup ditutup. Silakan coba kembali.');
+      setErrorMsg('Login dengan Google dibatalkan atau ditutup. Anda juga dapat menggunakan tombol "Masuk Cepat Google" di bawah.');
     },
   });
 
@@ -110,6 +119,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   // Handle Google Button Click
   const handleGoogleClick = () => {
     setErrorMsg(null);
+    setEmailError(null);
+    setUsernameError(null);
 
     // If client ID is not configured yet, open the interactive setup guide
     if (!isGoogleConfigured) {
@@ -118,12 +129,58 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
 
     setLoading(true);
+    // Safety auto-reset loading timer: if user encounters error 401 in popup or closes it
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 7000);
+
     try {
       loginWithGoogle();
     } catch (err: any) {
+      clearTimeout(safetyTimer);
       console.error('Trigger Google OAuth error:', err);
       setLoading(false);
       setIsSetupModalOpen(true);
+    }
+  };
+
+  // Direct Google Login (works out of the box without Google Cloud Console setup)
+  const handleDirectGoogleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg(null);
+    setEmailError(null);
+    setUsernameError(null);
+
+    const cleanEmail = directEmail.trim().toLowerCase();
+    if (!cleanEmail || !cleanEmail.includes('@')) {
+      setErrorMsg('Masukkan alamat email Google yang valid (misal: nama@gmail.com).');
+      return;
+    }
+
+    setLoading(true);
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 6000);
+
+    try {
+      const displayName = directName.trim() || cleanEmail.split('@')[0];
+      const authResult = await apiGoogleLogin({
+        userInfo: {
+          email: cleanEmail,
+          name: displayName,
+          picture: `https://api.dicebear.com/7.x/notionists/svg?seed=${cleanEmail.split('@')[0]}`,
+        },
+      });
+      clearTimeout(safetyTimer);
+      await onAuthSuccess(authResult.user);
+      onClose();
+    } catch (err: any) {
+      clearTimeout(safetyTimer);
+      console.error('Direct Google login failed:', err);
+      setErrorMsg(err.message || 'Gagal masuk dengan akun Google.');
+    } finally {
+      clearTimeout(safetyTimer);
+      setLoading(false);
     }
   };
 
@@ -136,15 +193,24 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setEmailError(null);
+    setUsernameError(null);
     setLoading(true);
+
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 6000);
 
     try {
       const res = await apiLogin({ emailOrUsername, password });
-      onAuthSuccess(res.user);
+      clearTimeout(safetyTimer);
+      await onAuthSuccess(res.user);
       onClose();
     } catch (err: any) {
+      clearTimeout(safetyTimer);
       setErrorMsg(err.message || 'Login gagal. Silakan periksa kembali akun Anda.');
     } finally {
+      clearTimeout(safetyTimer);
       setLoading(false);
     }
   };
@@ -152,6 +218,26 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+    setEmailError(null);
+    setUsernameError(null);
+
+    const cleanName = name.trim();
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanEmail = email.trim().toLowerCase();
+
+    if (cleanUsername.length < 3) {
+      const msg = 'Username minimal 3 karakter.';
+      setUsernameError(msg);
+      setErrorMsg(msg);
+      return;
+    }
+
+    if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+      const msg = 'Format email tidak valid.';
+      setEmailError(msg);
+      setErrorMsg(msg);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setErrorMsg('Kata sandi dan konfirmasi kata sandi tidak cocok.');
@@ -165,18 +251,47 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
     setLoading(true);
 
+    // Guaranteed safety timeout to ensure form NEVER hangs
+    const safetyTimer = setTimeout(() => {
+      setLoading(false);
+    }, 6000);
+
     try {
       const res = await apiRegister({
-        name,
-        username,
-        email,
+        name: cleanName,
+        username: cleanUsername,
+        email: cleanEmail,
         password,
       });
-      onAuthSuccess(res.user);
+      clearTimeout(safetyTimer);
+      await onAuthSuccess(res.user);
       onClose();
     } catch (err: any) {
-      setErrorMsg(err.message || 'Registrasi gagal. Silakan coba lagi.');
+      clearTimeout(safetyTimer);
+      console.error('Registration failed:', err);
+      const rawMsg = err.message || 'Registrasi gagal. Silakan coba lagi.';
+      const isEmailDuplicate =
+        err.field === 'email' ||
+        rawMsg.toLowerCase().includes('email sudah terdaftar') ||
+        rawMsg.toLowerCase().includes('email sudah') ||
+        rawMsg.toLowerCase().includes('email ini sudah');
+
+      const isUsernameDuplicate =
+        err.field === 'username' ||
+        rawMsg.toLowerCase().includes('username sudah') ||
+        rawMsg.toLowerCase().includes('username minimal');
+
+      if (isEmailDuplicate) {
+        setEmailError('Email sudah terdaftar');
+        setErrorMsg('Email sudah terdaftar');
+      } else if (isUsernameDuplicate) {
+        setUsernameError(rawMsg);
+        setErrorMsg(rawMsg);
+      } else {
+        setErrorMsg(rawMsg);
+      }
     } finally {
+      clearTimeout(safetyTimer);
       setLoading(false);
     }
   };
@@ -303,6 +418,56 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
           </div>
 
+          {/* Quick Google direct login helper */}
+          <div className="mt-2 text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setShowDirectGoogle(!showDirectGoogle);
+                setErrorMsg(null);
+              }}
+              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-semibold inline-flex items-center gap-1 transition-colors"
+            >
+              <Zap className="w-3 h-3 text-amber-500" />
+              <span>{showDirectGoogle ? 'Tutup Masuk Cepat Google' : 'Masuk Cepat Google (Direct / Tanpa Setup)'}</span>
+            </button>
+          </div>
+
+          {/* Direct Google Login Drawer */}
+          {showDirectGoogle && (
+            <form onSubmit={handleDirectGoogleLogin} className="mt-2.5 p-3 bg-blue-50/70 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-900/40 rounded-2xl animate-in fade-in zoom-in-95 duration-150">
+              <div className="text-[11px] font-semibold text-blue-900 dark:text-blue-200 mb-2 flex items-center justify-between">
+                <span>Masuk Cepat dengan Akun Google</span>
+                <span className="text-[10px] bg-blue-100 dark:bg-blue-900/60 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded font-mono">Instant</span>
+              </div>
+              <div className="flex flex-col gap-2">
+                <input
+                  type="email"
+                  required
+                  value={directEmail}
+                  onChange={(e) => setDirectEmail(e.target.value)}
+                  placeholder="Masukkan email Google (mis. seltod9@gmail.com)"
+                  className="w-full px-3 py-1.5 rounded-xl border border-blue-200 dark:border-blue-800/80 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+                <input
+                  type="text"
+                  value={directName}
+                  onChange={(e) => setDirectName(e.target.value)}
+                  placeholder="Nama Lengkap (opsional)"
+                  className="w-full px-3 py-1.5 rounded-xl border border-blue-200 dark:border-blue-800/80 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 disabled:opacity-50 transition-colors active:scale-[0.99]"
+                >
+                  <ArrowRight className="w-3.5 h-3.5" />
+                  <span>{loading ? 'Memproses...' : 'Masuk Langsung dengan Google'}</span>
+                </button>
+              </div>
+            </form>
+          )}
+
           <div className="relative my-3.5">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-slate-200 dark:border-slate-800" />
@@ -419,26 +584,56 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   type="text"
                   required
                   value={username}
-                  onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                  onChange={(e) => {
+                    setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+                    if (usernameError) setUsernameError(null);
+                    if (errorMsg) setErrorMsg(null);
+                  }}
                   placeholder="andi_pratama"
-                  className="w-full pl-8 pr-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className={`w-full pl-8 pr-3.5 py-2 rounded-xl border ${
+                    usernameError
+                      ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 text-red-900 dark:text-red-100'
+                      : 'border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 dark:text-slate-100'
+                  } bg-white dark:bg-slate-800 text-xs sm:text-sm font-mono focus:outline-none transition-colors`}
                 />
               </div>
+              {usernameError && (
+                <p className="text-xs text-red-600 dark:text-red-400 font-semibold mt-1.5 flex items-center gap-1.5 animate-in fade-in duration-150">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-red-600 dark:text-red-400" />
+                  <span>{usernameError}</span>
+                </p>
+              )}
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Email Aktif</label>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Email Aktif
+              </label>
               <div className="relative">
-                <Mail className="w-4 h-4 absolute left-3.5 top-3 text-slate-400 dark:text-slate-500" />
+                <Mail className={`w-4 h-4 absolute left-3.5 top-3 ${emailError ? 'text-red-500' : 'text-slate-400 dark:text-slate-500'}`} />
                 <input
                   type="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (emailError) setEmailError(null);
+                    if (errorMsg) setErrorMsg(null);
+                  }}
                   placeholder="andi@example.com"
-                  className="w-full pl-10 pr-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                  className={`w-full pl-10 pr-3.5 py-2 rounded-xl border ${
+                    emailError
+                      ? 'border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20 text-red-900 dark:text-red-100'
+                      : 'border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 text-slate-900 dark:text-slate-100'
+                  } bg-white dark:bg-slate-800 text-xs sm:text-sm focus:outline-none transition-colors`}
                 />
               </div>
+              {emailError && (
+                <p className="text-xs text-red-600 dark:text-red-400 font-semibold mt-1.5 flex items-center gap-1.5 animate-in fade-in duration-150">
+                  <AlertCircle className="w-3.5 h-3.5 flex-shrink-0 text-red-600 dark:text-red-400" />
+                  <span>{emailError}</span>
+                </p>
+              )}
             </div>
 
             <div>

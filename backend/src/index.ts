@@ -198,13 +198,23 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     const cleanUsername = username.trim().toLowerCase();
     const cleanEmail = email.trim().toLowerCase();
 
-    // Check duplicate
-    const existing = db.users.find(
-      (u) => u.username.toLowerCase() === cleanUsername || u.email.toLowerCase() === cleanEmail
-    );
+    // Check duplicate email specifically
+    const existingEmail = db.users.find((u) => u.email.toLowerCase() === cleanEmail);
+    if (existingEmail) {
+      res.status(400).json({
+        error: 'Email sudah terdaftar',
+        field: 'email',
+      });
+      return;
+    }
 
-    if (existing) {
-      res.status(400).json({ error: 'Username atau Email sudah terdaftar.' });
+    // Check duplicate username specifically
+    const existingUsername = db.users.find((u) => u.username.toLowerCase() === cleanUsername);
+    if (existingUsername) {
+      res.status(400).json({
+        error: 'Username sudah digunakan. Silakan pilih username lain',
+        field: 'username',
+      });
       return;
     }
 

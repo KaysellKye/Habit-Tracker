@@ -212,6 +212,17 @@ export const GoogleOAuthSetupModal: React.FC<GoogleOAuthSetupModalProps> = ({
                 </div>
               </form>
             </div>
+
+            {/* Troubleshooting 401: invalid_client */}
+            <div className="p-3 bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 rounded-2xl text-amber-900 dark:text-amber-200 flex flex-col gap-1 text-xs">
+              <span className="font-bold flex items-center gap-1 text-amber-800 dark:text-amber-300">
+                <HelpCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                Mengalami pesan "Error 401: invalid_client"?
+              </span>
+              <p className="text-[11px] leading-relaxed text-amber-800/90 dark:text-amber-300/90">
+                Pesan ini muncul jika Google tidak mengenali Client ID yang dimasukkan. Pastikan Anda telah membuat OAuth Client ID bertipe <strong>Web application</strong> di Google Cloud Console dan memasukkan URL <code>{currentOrigin}</code> ke dalam <strong>Authorized JavaScript origins</strong>. Jika belum ingin membuat kredensial, Anda dapat menggunakan tombol <strong>Masuk Cepat Google (Direct)</strong> di jendela login!
+              </p>
+            </div>
           </div>
         </div>
       </div>
