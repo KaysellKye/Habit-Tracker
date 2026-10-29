@@ -16,19 +16,26 @@ import { AuthModal } from './components/modals/AuthModal';
 import { EditProfileModal } from './components/modals/EditProfileModal';
 import { TimeBlockModal } from './components/modals/TimeBlockModal';
 import { ProductivityLineChart } from './components/stats/ProductivityLineChart';
+import { CategoryManager } from './components/settings/CategoryManager';
 import { useTheme } from './context/ThemeContext';
 import {
   useRealtimeClock,
   getCurrentWeekDays,
   getTodayDateStr,
+  getTomorrowDateStr,
 } from './utils/dateUtils';
+import {
+  loadUserCategories,
+  saveUserCategories,
+  DEFAULT_CATEGORIES,
+} from './utils/categoryUtils';
 import {
   initialTasks,
   initialTimeline,
   initialWeekDays,
   initialUpcomingTasks,
 } from './data/mockData';
-import { Task, Category, TimelineItem, UserProfile } from './types';
+import { Task, Category, TimelineItem, UserProfile, CategoryItem } from './types';
 import {
   apiGetMe,
   apiGetTasks,
@@ -82,10 +89,19 @@ export const App: React.FC = () => {
 
   // Modals state
   const [isQuickAddOpen, setIsQuickAddOpen] = useState(false);
+  const [quickAddInitialDate, setQuickAddInitialDate] = useState<string | undefined>(undefined);
   const [activeConflict, setActiveConflict] = useState<TimelineItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
   const [editingTimeBlock, setEditingTimeBlock] = useState<TimelineItem | null>(null);
   const [isTimeBlockModalOpen, setIsTimeBlockModalOpen] = useState(false);
+
+  // Custom Categories state (persisted)
+  const [categories, setCategories] = useState<CategoryItem[]>(() => loadUserCategories());
+
+  const handleUpdateCategories = (newCategories: CategoryItem[]) => {
+    setCategories(newCategories);
+    saveUserCategories(newCategories);
+  };
 
   // Data state
   const [tasks, setTasks] = useState<Task[]>(() => {
@@ -100,7 +116,17 @@ export const App: React.FC = () => {
     return initialTimeline;
   });
   const [weekDays, setWeekDays] = useState(initialWeekDays);
-  const [upcomingTasks] = useState(initialUpcomingTasks);
+
+  // Tomorrow calculation & Tomorrow Tasks for "Besok & Mendatang"
+  const tomorrowDateStr = useMemo(() => getTomorrowDateStr(now), [now]);
+
+  const tomorrowTasks = useMemo(() => {
+    return tasks.filter(
+      (t) =>
+        t.dateStr === tomorrowDateStr ||
+        (t.dateStr && t.dateStr > todayDateStr)
+    );
+  }, [tasks, tomorrowDateStr, todayDateStr]);
 
   // Keep week days in sync when date advances past midnight
   useEffect(() => {
@@ -124,7 +150,7 @@ export const App: React.FC = () => {
           return apiGetTasks();
         })
         .then((serverTasks) => {
-          if (serverTasks && serverTasks.length > 0) {
+          if (Array.isArray(serverTasks)) {
             setTasks(serverTasks);
           }
         })
@@ -191,9 +217,11 @@ export const App: React.FC = () => {
       const serverTasks = await apiGetTasks();
       if (serverTasks && serverTasks.length > 0) {
         setTasks(serverTasks);
-      } else if (tasks.length > 0) {
-        // Sync local tasks up to the new user account
-        await apiBulkSyncTasks(tasks);
+        setLocalTasks(serverTasks);
+      } else {
+        // User baru: mulai dengan daftar tugas kosong (tidak menyalin tugas demo)
+        setTasks([]);
+        setLocalTasks([]);
       }
     } catch (err) {
       console.warn('Could not sync tasks with server:', err);
@@ -204,6 +232,7 @@ export const App: React.FC = () => {
     removeToken();
     removeLocalUser();
     setCurrentUser(null);
+    setTasks(initialTasks);
   };
 
   // Handlers for Tasks
@@ -253,7 +282,7 @@ export const App: React.FC = () => {
       priority: newTaskData.priority || 'Medium',
       completed: false,
       timeRange: newTaskData.timeRange || '10:00 - 11:00',
-      dateStr: selectedDate || todayDateStr,
+      dateStr: newTaskData.dateStr || selectedDate || todayDateStr,
       isGoogleSync: newTaskData.isGoogleSync ?? true,
       subtasks: newTaskData.subtasks || [],
     };
@@ -372,13 +401,18 @@ export const App: React.FC = () => {
           onTabChange={setActiveTab}
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
-          onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+          onOpenQuickAdd={() => {
+            setQuickAddInitialDate(todayDateStr);
+            setIsQuickAddOpen(true);
+          }}
           selectedCategory={selectedCategory}
           onSelectCategory={setSelectedCategory}
           taskCounts={taskCounts}
           currentUser={currentUser}
           onOpenAuthModal={() => setIsAuthModalOpen(true)}
           onOpenEditProfile={() => setIsEditProfileOpen(true)}
+          categories={categories}
+          onManageCategories={() => setActiveTab('pengaturan')}
         />
 
         {/* 3. Main Content Area */}
@@ -399,7 +433,10 @@ export const App: React.FC = () => {
                   userName={currentUser ? currentUser.name : 'Tamu'}
                   searchQuery={searchQuery}
                   onSearchChange={setSearchQuery}
-                  onOpenCommandPalette={() => setIsQuickAddOpen(true)}
+                  onOpenCommandPalette={() => {
+                    setQuickAddInitialDate(todayDateStr);
+                    setIsQuickAddOpen(true);
+                  }}
                 />
 
                 {/* 2. Overdue Section (Perlu Diselesaikan Segera) */}
@@ -426,6 +463,7 @@ export const App: React.FC = () => {
                   onDeleteTask={handleDeleteTask}
                   todayDateStr={todayDateStr}
                   selectedDate={selectedDate}
+                  categories={categories}
                 />
 
                 {/* 5. Timeline & Time-Blocking Hari Ini */}
@@ -439,7 +477,16 @@ export const App: React.FC = () => {
                 />
 
                 {/* 6. Upcoming Section (Besok & Mendatang) */}
-                <UpcomingSection upcomingTasks={upcomingTasks} />
+                <UpcomingSection
+                  tasks={tomorrowTasks}
+                  categories={categories}
+                  onToggleTask={handleToggleTask}
+                  onDeleteTask={handleDeleteTask}
+                  onAddTomorrowTask={() => {
+                    setQuickAddInitialDate(tomorrowDateStr);
+                    setIsQuickAddOpen(true);
+                  }}
+                />
               </>
             )}
 
@@ -700,6 +747,12 @@ export const App: React.FC = () => {
                     <input type="checkbox" defaultChecked className="w-4 h-4 accent-blue-600" />
                   </div>
                 </div>
+
+                {/* Category Management Card (Tambah / Ganti Kategori Bebas) */}
+                <CategoryManager
+                  categories={categories}
+                  onUpdateCategories={handleUpdateCategories}
+                />
               </div>
             )}
           </div>
@@ -710,14 +763,22 @@ export const App: React.FC = () => {
       <MobileBottomNav
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onOpenQuickAdd={() => setIsQuickAddOpen(true)}
+        onOpenQuickAdd={() => {
+          setQuickAddInitialDate(todayDateStr);
+          setIsQuickAddOpen(true);
+        }}
       />
 
       {/* 5. Modals */}
       <QuickAddModal
         isOpen={isQuickAddOpen}
-        onClose={() => setIsQuickAddOpen(false)}
+        onClose={() => {
+          setIsQuickAddOpen(false);
+          setQuickAddInitialDate(undefined);
+        }}
         onAddTask={handleAddTask}
+        categories={categories}
+        initialDateStr={quickAddInitialDate}
       />
 
       <ConflictResolverModal

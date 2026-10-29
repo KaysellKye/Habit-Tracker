@@ -12,8 +12,9 @@ import {
   Trash2,
   MoreVertical,
 } from 'lucide-react';
-import { Task, Category, Priority } from '../../types';
+import { Task, Category, Priority, CategoryItem } from '../../types';
 import { getTodayDateStr } from '../../utils/dateUtils';
+import { DEFAULT_CATEGORIES, getCategoryStyle, COLOR_STYLES } from '../../utils/categoryUtils';
 
 interface TodayTasksSectionProps {
   tasks: Task[];
@@ -24,6 +25,7 @@ interface TodayTasksSectionProps {
   onOpenTaskDetail?: (task: Task) => void;
   todayDateStr?: string;
   selectedDate?: string;
+  categories?: CategoryItem[];
 }
 
 export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
@@ -35,9 +37,10 @@ export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
   onOpenTaskDetail,
   todayDateStr,
   selectedDate,
+  categories = DEFAULT_CATEGORIES,
 }) => {
   const [quickInput, setQuickInput] = useState('');
-  const [selectedTag, setSelectedTag] = useState<Category>('Kerja');
+  const [selectedTag, setSelectedTag] = useState<Category>(categories[0]?.name || 'Kerja');
   const [selectedTime, setSelectedTime] = useState<string>('09:00 - 10:00');
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [expandedTaskId, setExpandedTaskId] = useState<string | null>(null);
@@ -130,21 +133,27 @@ export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
           </button>
 
           {showTagDropdown && (
-            <div className="absolute right-0 top-full mt-1.5 w-32 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 py-1 z-30">
-              {(['Kerja', 'Produktif', 'Hiburan'] as Category[]).map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => {
-                    setSelectedTag(cat);
-                    setShowTagDropdown(false);
-                  }}
-                  className="w-full text-left px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center justify-between"
-                >
-                  <span>{cat}</span>
-                  {selectedTag === cat && <Check className="w-3 h-3 text-blue-600 dark:text-blue-400" />}
-                </button>
-              ))}
+            <div className="absolute right-0 top-full mt-1.5 w-36 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-slate-100 dark:border-slate-700 py-1 z-30">
+              {categories.map((cat) => {
+                const dotClass = COLOR_STYLES[cat.color]?.dotClass || 'bg-blue-600';
+                return (
+                  <button
+                    key={cat.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedTag(cat.name);
+                      setShowTagDropdown(false);
+                    }}
+                    className="w-full text-left px-3 py-1.5 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700/60 flex items-center justify-between"
+                  >
+                    <div className="flex items-center gap-1.5 truncate">
+                      <span className={`w-2 h-2 rounded-full ${dotClass} flex-shrink-0`} />
+                      <span className="truncate">{cat.name}</span>
+                    </div>
+                    {selectedTag === cat.name && <Check className="w-3 h-3 text-blue-600 dark:text-blue-400 flex-shrink-0" />}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -284,24 +293,15 @@ export const TodayTasksSection: React.FC<TodayTasksSectionProps> = ({
                   {/* Meta badges */}
                   <div className="flex flex-wrap items-center gap-2 mt-1.5">
                     {/* Category */}
-                    {task.category === 'Kerja' && (
-                      <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-900 dark:text-amber-300 border border-amber-200/60 dark:border-amber-900/40 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
-                        Kerja
-                      </span>
-                    )}
-                    {task.category === 'Produktif' && (
-                      <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/50 text-blue-900 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
-                        Produktif
-                      </span>
-                    )}
-                    {task.category === 'Hiburan' && (
-                      <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-900 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40 flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        Hiburan
-                      </span>
-                    )}
+                    {task.category && (() => {
+                      const catStyle = getCategoryStyle(task.category, categories);
+                      return (
+                        <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full border flex items-center gap-1 ${catStyle.badgeClass}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${catStyle.dotClass}`} />
+                          {task.category}
+                        </span>
+                      );
+                    })()}
 
                     {/* Priority */}
                     <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300">

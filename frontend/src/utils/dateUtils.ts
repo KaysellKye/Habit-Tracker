@@ -121,6 +121,15 @@ export const getTomorrowDateLabel = (date: Date = new Date()): string => {
 };
 
 /**
+ * Returns local YYYY-MM-DD string for tomorrow
+ */
+export const getTomorrowDateStr = (date: Date = new Date()): string => {
+  const tomorrow = new Date(date);
+  tomorrow.setDate(date.getDate() + 1);
+  return getTodayDateStr(tomorrow);
+};
+
+/**
  * Generates the 7 days of the current week (Senin to Minggu)
  */
 export const getCurrentWeekDays = (referenceDate: Date = new Date()): WeekDay[] => {

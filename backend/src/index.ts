@@ -226,29 +226,7 @@ app.post('/api/auth/register', (req: Request, res: Response) => {
     };
 
     db.users.push(newUser);
-
-    // Seed starter tasks for newly registered user
-    const starterTasks: StoredTask[] = [
-      {
-        id: `task-${uuidv4()}`,
-        userId: newUser.id,
-        title: 'Eksplorasi Fitur TimeBlock To-Do',
-        completed: false,
-        priority: 'High',
-        category: 'Kerja',
-        timeRange: '09:00 - 10:00',
-        dateStr: '2023-10-24',
-        isGoogleSync: true,
-        subtasks: [
-          { id: `sub-${uuidv4()}`, title: 'Atur nama & foto profil di Pengaturan', completed: false },
-          { id: `sub-${uuidv4()}`, title: 'Coba buat tugas baru dengan tombol +', completed: false },
-        ],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    ];
-
-    db.tasks.push(...starterTasks);
+    // User baru mendaftar memulai dengan daftar tugas bersih (kosong)
     writeDatabase(db);
 
     const token = jwt.sign({ userId: newUser.id }, JWT_SECRET, { expiresIn: '30d' });
@@ -415,29 +393,7 @@ app.post('/api/auth/google', async (req: Request, res: Response) => {
       };
 
       db.users.push(user);
-
-      // Add starter tasks for new Google user
-      const starterTasks: StoredTask[] = [
-        {
-          id: `task-${uuidv4()}`,
-          userId: user.id,
-          title: 'Selamat datang di TimeBlock To-Do!',
-          completed: false,
-          priority: 'High',
-          category: 'Kerja',
-          timeRange: '09:00 - 10:00',
-          dateStr: '2023-10-24',
-          isGoogleSync: true,
-          subtasks: [
-            { id: `sub-${uuidv4()}`, title: 'Akun Google berhasil terhubung', completed: true },
-            { id: `sub-${uuidv4()}`, title: 'Eksplorasi pembuatan tugas dan time-blocking', completed: false },
-          ],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        },
-      ];
-
-      db.tasks.push(...starterTasks);
+      // User baru Google memulai dengan daftar tugas bersih (kosong)
       writeDatabase(db);
     }
 

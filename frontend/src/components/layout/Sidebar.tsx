@@ -15,8 +15,9 @@ import {
   Sun,
   Moon,
 } from 'lucide-react';
-import { Category, UserProfile } from '../../types';
+import { Category, UserProfile, CategoryItem } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
+import { DEFAULT_CATEGORIES, COLOR_STYLES } from '../../utils/categoryUtils';
 
 interface SidebarProps {
   activeTab: string;
@@ -34,6 +35,8 @@ interface SidebarProps {
   currentUser: UserProfile | null;
   onOpenAuthModal: () => void;
   onOpenEditProfile: () => void;
+  categories?: CategoryItem[];
+  onManageCategories?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -48,6 +51,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   currentUser,
   onOpenAuthModal,
   onOpenEditProfile,
+  categories = DEFAULT_CATEGORIES,
+  onManageCategories,
 }) => {
   const { isDark, toggleTheme } = useTheme();
 
@@ -63,7 +68,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Semua Tugas',
       icon: CheckCircle2,
       badge: taskCounts.overdue > 0 ? `${taskCounts.overdue} Tertunda` : undefined,
-      badgeColor: 'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50',
+      badgeColor:
+        'bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50',
     },
     {
       id: 'kalender',
@@ -80,12 +86,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: 'Pengaturan',
       icon: Settings,
     },
-  ];
-
-  const categories: { id: Category; label: string; color: string; dotColor: string }[] = [
-    { id: 'Kerja', label: 'Kerja', color: 'text-amber-600 dark:text-amber-400', dotColor: 'bg-amber-500' },
-    { id: 'Produktif', label: 'Produktif', color: 'text-blue-600 dark:text-blue-400', dotColor: 'bg-blue-600' },
-    { id: 'Hiburan', label: 'Hiburan', color: 'text-emerald-600 dark:text-emerald-400', dotColor: 'bg-emerald-500' },
   ];
 
   const sidebarContent = (
@@ -168,14 +168,26 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
               Kategori
             </span>
-            {selectedCategory !== 'all' && (
-              <button
-                onClick={() => onSelectCategory('all')}
-                className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
-              >
-                Reset
-              </button>
-            )}
+            <div className="flex items-center gap-1.5">
+              {onManageCategories && (
+                <button
+                  type="button"
+                  onClick={onManageCategories}
+                  title="Kelola & Kustomisasi Kategori"
+                  className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 font-medium hover:underline"
+                >
+                  Kelola
+                </button>
+              )}
+              {selectedCategory !== 'all' && (
+                <button
+                  onClick={() => onSelectCategory('all')}
+                  className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
           </div>
 
           <button
@@ -193,23 +205,28 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {selectedCategory === 'all' && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
           </button>
 
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onSelectCategory(cat.id)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                selectedCategory === cat.id
-                  ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold'
-                  : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <span className={`w-2 h-2 rounded-full ${cat.dotColor}`} />
-                <span>{cat.label}</span>
-              </div>
-              {selectedCategory === cat.id && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
-            </button>
-          ))}
+          {categories.map((cat) => {
+            const dotClass = COLOR_STYLES[cat.color]?.dotClass || 'bg-blue-600';
+            const isSelected = selectedCategory === cat.name;
+
+            return (
+              <button
+                key={cat.id}
+                onClick={() => onSelectCategory(cat.name)}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
+                  isSelected
+                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white font-semibold'
+                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <span className={`w-2 h-2 rounded-full ${dotClass}`} />
+                  <span>{cat.name}</span>
+                </div>
+                {isSelected && <Check className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />}
+              </button>
+            );
+          })}
         </div>
       </div>
 

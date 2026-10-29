@@ -1,6 +1,23 @@
 export type Priority = 'Urgent' | 'High' | 'Medium' | 'Low';
 
-export type Category = 'Kerja' | 'Produktif' | 'Hiburan';
+export type Category = string;
+
+export type CategoryColor =
+  | 'amber'
+  | 'blue'
+  | 'emerald'
+  | 'purple'
+  | 'rose'
+  | 'cyan'
+  | 'pink'
+  | 'slate';
+
+export interface CategoryItem {
+  id: string;
+  name: string;
+  color: CategoryColor;
+  isDefault?: boolean;
+}
 
 export interface Subtask {
   id: string;
