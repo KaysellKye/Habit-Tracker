@@ -18,22 +18,24 @@ const isGoogleConfigured = Boolean(
     rawId.includes('.apps.googleusercontent.com')
 );
 
-const AppTree = (
-  <ErrorBoundary>
-    <ThemeProvider>
-      <App />
-    </ThemeProvider>
-  </ErrorBoundary>
-);
+const RootApp: React.FC = () => {
+  return (
+    <ErrorBoundary>
+      <ThemeProvider>
+        <App />
+      </ThemeProvider>
+    </ErrorBoundary>
+  );
+};
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     {isGoogleConfigured ? (
       <GoogleOAuthProvider clientId={rawId}>
-        {AppTree}
+        <RootApp />
       </GoogleOAuthProvider>
     ) : (
-      AppTree
+      <RootApp />
     )}
   </React.StrictMode>
 );

@@ -16,6 +16,7 @@ import {
   Moon,
   Edit3,
   Mail,
+  LogOut,
 } from 'lucide-react';
 import { Category, UserProfile, CategoryItem } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
@@ -39,6 +40,7 @@ interface SidebarProps {
   onOpenEditProfile: () => void;
   categories?: CategoryItem[];
   onManageCategories?: () => void;
+  onLogout?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -55,6 +57,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenEditProfile,
   categories = DEFAULT_CATEGORIES,
   onManageCategories,
+  onLogout,
 }) => {
   const { isDark, toggleTheme } = useTheme();
 
@@ -286,9 +289,25 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 )}
               </div>
             </div>
-            <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium group-hover:underline flex-shrink-0">
-              Edit
-            </span>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="text-[10px] text-blue-600 dark:text-blue-400 font-medium group-hover:underline">
+                Edit
+              </span>
+              {onLogout && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onLogout();
+                    if (isOpenMobile) onCloseMobile();
+                  }}
+                  title="Keluar dari akun (Logout)"
+                  className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         ) : (
           <button

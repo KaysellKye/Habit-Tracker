@@ -521,6 +521,7 @@ export const App: React.FC = () => {
           onOpenEditProfile={() => setIsEditProfileOpen(true)}
           categories={categories}
           onManageCategories={() => setIsCategoryModalOpen(true)}
+          onLogout={handleLogout}
         />
 
         {/* 3. Main Content Area */}
@@ -730,12 +731,20 @@ export const App: React.FC = () => {
 
                   <div className="flex items-center gap-2">
                     {currentUser ? (
-                      <button
-                        onClick={() => setIsEditProfileOpen(true)}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs active:scale-95 transition-all"
-                      >
-                        Atur Nama & Foto Profil
-                      </button>
+                      <>
+                        <button
+                          onClick={() => setIsEditProfileOpen(true)}
+                          className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold rounded-xl shadow-xs active:scale-95 transition-all"
+                        >
+                          Atur Nama & Foto Profil
+                        </button>
+                        <button
+                          onClick={handleLogout}
+                          className="px-3 py-2 bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900/40 text-xs font-semibold rounded-xl border border-red-200/80 dark:border-red-900/60 active:scale-95 transition-all"
+                        >
+                          Keluar
+                        </button>
+                      </>
                     ) : (
                       <button
                         onClick={() => setIsAuthModalOpen(true)}
@@ -926,13 +935,18 @@ export const App: React.FC = () => {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      <ErrorBoundary>
-        <AuthModal
-          isOpen={isAuthModalOpen}
+      {isAuthModalOpen && (
+        <ErrorBoundary
+          isModal
           onClose={() => setIsAuthModalOpen(false)}
-          onAuthSuccess={handleAuthSuccess}
-        />
-      </ErrorBoundary>
+        >
+          <AuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+            onAuthSuccess={handleAuthSuccess}
+          />
+        </ErrorBoundary>
+      )}
 
       {currentUser && (
         <EditProfileModal

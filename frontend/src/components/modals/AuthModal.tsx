@@ -98,6 +98,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       currentGoogleClientId.includes('.apps.googleusercontent.com')
   );
 
+  // Countdown timer for OTP resend (MUST be called before any early return)
+  useEffect(() => {
+    let timer: any;
+    if (otpCountdown > 0) {
+      timer = setTimeout(() => setOtpCountdown((c) => c - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [otpCountdown]);
+
   if (!isOpen) return null;
 
   // Handle Google Button Click
@@ -106,9 +115,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setEmailError(null);
     setUsernameError(null);
 
-    // If client ID is not configured yet, open the interactive setup guide
+    // If client ID is not configured yet, open direct Google login drawer smoothly
     if (!isGoogleConfigured) {
-      setIsSetupModalOpen(true);
+      setShowDirectGoogle(true);
+      setErrorMsg('Google Client ID belum dikonfigurasi. Anda dapat langsung menggunakan "Masuk Cepat Google" di bawah tanpa perlu mendaftar ke Google Cloud Console.');
       return;
     }
 
@@ -372,15 +382,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   // ==================== FORGOT PASSWORD & OTP HANDLERS ====================
-  // Countdown timer for OTP resend
-  useEffect(() => {
-    let timer: any;
-    if (otpCountdown > 0) {
-      timer = setTimeout(() => setOtpCountdown((c) => c - 1), 1000);
-    }
-    return () => clearTimeout(timer);
-  }, [otpCountdown]);
-
   // Step 1: Request OTP
   const handleRequestOtp = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
