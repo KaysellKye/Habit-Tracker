@@ -255,7 +255,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
         {currentUser ? (
           <div
-            onClick={onOpenEditProfile}
+            onClick={() => {
+              onOpenEditProfile();
+              if (isOpenMobile) onCloseMobile();
+            }}
             className="p-2.5 bg-slate-50 dark:bg-slate-800/70 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl border border-slate-200/70 dark:border-slate-700/70 flex items-center justify-between cursor-pointer transition-colors group"
             title="Klik untuk ubah nama atau foto profil"
           >
@@ -289,7 +292,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </div>
         ) : (
           <button
-            onClick={onOpenAuthModal}
+            onClick={() => {
+              onOpenAuthModal();
+              if (isOpenMobile) onCloseMobile();
+            }}
             className="p-2.5 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 text-blue-700 dark:text-blue-300 rounded-xl border border-blue-200/80 dark:border-blue-800 flex items-center justify-between transition-colors text-left"
           >
             <div>

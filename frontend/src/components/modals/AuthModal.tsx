@@ -21,7 +21,6 @@ import {
   Copy,
   RotateCcw,
 } from 'lucide-react';
-import { useGoogleLogin } from '@react-oauth/google';
 import {
   apiLogin,
   apiRegister,
@@ -87,8 +86,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   // Check if real Google Client ID is configured
   const currentGoogleClientId =
-    localStorage.getItem('custom_google_client_id') ||
-    import.meta.env.VITE_GOOGLE_CLIENT_ID ||
+    (typeof window !== 'undefined'
+      ? localStorage.getItem('custom_google_client_id')
+      : null) ||
+    (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID ||
     '';
 
   const isGoogleConfigured = Boolean(
@@ -96,48 +97,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       !currentGoogleClientId.includes('YOUR_GOOGLE_CLIENT_ID') &&
       currentGoogleClientId.includes('.apps.googleusercontent.com')
   );
-
-  // Official Google OAuth 2.0 Login Hook
-  const loginWithGoogle = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      setLoading(true);
-      setErrorMsg(null);
-
-      try {
-        // 1. Fetch user profile directly from Google's official userinfo endpoint
-        const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`,
-          },
-        });
-
-        if (!userInfoRes.ok) {
-          throw new Error('Gagal mengambil data profil dari Google.');
-        }
-
-        const googleUserInfo = await userInfoRes.json();
-
-        // 2. Send token and profile to our API/Backend to establish session & sync tasks
-        const authResult = await apiGoogleLogin({
-          accessToken: tokenResponse.access_token,
-          userInfo: googleUserInfo,
-        });
-
-        await onAuthSuccess(authResult.user);
-        onClose();
-      } catch (err: any) {
-        console.error('Google OAuth processing failed:', err);
-        setErrorMsg(err.message || 'Terjadi kesalahan saat memproses login Google.');
-      } finally {
-        setLoading(false);
-      }
-    },
-    onError: (errorResponse) => {
-      console.warn('Google Sign-In dismissed or failed:', errorResponse);
-      setLoading(false);
-      setErrorMsg('Login dengan Google dibatalkan atau ditutup. Anda juga dapat menggunakan tombol "Masuk Cepat Google" di bawah.');
-    },
-  });
 
   if (!isOpen) return null;
 
@@ -154,18 +113,92 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
 
     setLoading(true);
-    // Safety auto-reset loading timer: if user encounters error 401 in popup or closes it
     const safetyTimer = setTimeout(() => {
       setLoading(false);
-    }, 7000);
+    }, 10000);
 
-    try {
-      loginWithGoogle();
-    } catch (err: any) {
-      clearTimeout(safetyTimer);
-      console.error('Trigger Google OAuth error:', err);
-      setLoading(false);
-      setIsSetupModalOpen(true);
+    const triggerLogin = () => {
+      try {
+        if (!(window as any).google?.accounts?.oauth2) {
+          throw new Error('Google Identity Services SDK tidak tersedia.');
+        }
+
+        const client = (window as any).google.accounts.oauth2.initTokenClient({
+          client_id: currentGoogleClientId,
+          scope: 'openid profile email',
+          callback: async (tokenResponse: any) => {
+            clearTimeout(safetyTimer);
+            if (tokenResponse.error) {
+              setLoading(false);
+              setErrorMsg('Login dengan Google dibatalkan atau ditutup.');
+              return;
+            }
+
+            try {
+              const userInfoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                headers: {
+                  Authorization: `Bearer ${tokenResponse.access_token}`,
+                },
+              });
+
+              if (!userInfoRes.ok) {
+                throw new Error('Gagal mengambil data profil dari Google.');
+              }
+
+              const googleUserInfo = await userInfoRes.json();
+              const authResult = await apiGoogleLogin({
+                accessToken: tokenResponse.access_token,
+                userInfo: googleUserInfo,
+              });
+
+              await onAuthSuccess(authResult.user);
+              onClose();
+            } catch (err: any) {
+              console.error('Google OAuth processing failed:', err);
+              setErrorMsg(err.message || 'Terjadi kesalahan saat memproses login Google.');
+            } finally {
+              setLoading(false);
+            }
+          },
+          error_callback: (nonOAuthError: any) => {
+            clearTimeout(safetyTimer);
+            setLoading(false);
+            console.warn('Google Sign-In non-OAuth error:', nonOAuthError);
+            setErrorMsg('Tidak dapat menghubungkan ke Google. Silakan periksa kembali konfigurasi Client ID Anda.');
+          },
+        });
+
+        client.requestAccessToken();
+      } catch (err: any) {
+        clearTimeout(safetyTimer);
+        setLoading(false);
+        console.error('Trigger Google OAuth error:', err);
+        setIsSetupModalOpen(true);
+      }
+    };
+
+    if (typeof window !== 'undefined' && (window as any).google?.accounts?.oauth2) {
+      triggerLogin();
+    } else {
+      const existingScript = document.getElementById('google-gsi-script');
+      if (existingScript) {
+        setTimeout(triggerLogin, 500);
+      } else {
+        const script = document.createElement('script');
+        script.id = 'google-gsi-script';
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = () => {
+          triggerLogin();
+        };
+        script.onerror = () => {
+          clearTimeout(safetyTimer);
+          setLoading(false);
+          setErrorMsg('Gagal memuat Google Sign-In SDK. Anda dapat menggunakan tombol "Masuk Cepat Google" di bawah.');
+        };
+        document.body.appendChild(script);
+      }
     }
   };
 

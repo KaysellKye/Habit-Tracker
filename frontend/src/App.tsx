@@ -14,6 +14,7 @@ import { ConflictResolverModal } from './components/modals/ConflictResolverModal
 import { ConfirmDeleteModal } from './components/modals/ConfirmDeleteModal';
 import { AuthModal } from './components/modals/AuthModal';
 import { EditProfileModal } from './components/modals/EditProfileModal';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { TimeBlockModal } from './components/modals/TimeBlockModal';
 import { AlarmModal } from './components/modals/AlarmModal';
 import { AlarmRingingModal } from './components/modals/AlarmRingingModal';
@@ -925,11 +926,13 @@ export const App: React.FC = () => {
         onCancel={() => setDeleteTarget(null)}
       />
 
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-        onAuthSuccess={handleAuthSuccess}
-      />
+      <ErrorBoundary>
+        <AuthModal
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          onAuthSuccess={handleAuthSuccess}
+        />
+      </ErrorBoundary>
 
       {currentUser && (
         <EditProfileModal

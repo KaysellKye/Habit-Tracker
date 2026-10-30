@@ -2,20 +2,38 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { ThemeProvider } from './context/ThemeContext';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { App } from './App';
 import './index.css';
 
-const GOOGLE_CLIENT_ID =
-  localStorage.getItem('custom_google_client_id') ||
-  import.meta.env.VITE_GOOGLE_CLIENT_ID ||
-  '';
+const customId =
+  typeof window !== 'undefined'
+    ? localStorage.getItem('custom_google_client_id') || ''
+    : '';
+const envId = (import.meta as any).env?.VITE_GOOGLE_CLIENT_ID || '';
+const rawId = customId || envId;
+const isGoogleConfigured = Boolean(
+  rawId &&
+    !rawId.includes('YOUR_GOOGLE_CLIENT_ID') &&
+    rawId.includes('.apps.googleusercontent.com')
+);
+
+const AppTree = (
+  <ErrorBoundary>
+    <ThemeProvider>
+      <App />
+    </ThemeProvider>
+  </ErrorBoundary>
+);
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
-      <ThemeProvider>
-        <App />
-      </ThemeProvider>
-    </GoogleOAuthProvider>
+    {isGoogleConfigured ? (
+      <GoogleOAuthProvider clientId={rawId}>
+        {AppTree}
+      </GoogleOAuthProvider>
+    ) : (
+      AppTree
+    )}
   </React.StrictMode>
 );
