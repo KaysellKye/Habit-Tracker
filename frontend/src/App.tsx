@@ -18,8 +18,6 @@ import { TimeBlockModal } from './components/modals/TimeBlockModal';
 import { AlarmModal } from './components/modals/AlarmModal';
 import { AlarmRingingModal } from './components/modals/AlarmRingingModal';
 import { CategoryModal } from './components/modals/CategoryModal';
-import { CustomLogoModal } from './components/modals/CustomLogoModal';
-import { AppBrandLogo } from './components/common/AppBrandLogo';
 import { ProductivityLineChart } from './components/stats/ProductivityLineChart';
 import { CategoryManager } from './components/settings/CategoryManager';
 import { useTheme } from './context/ThemeContext';
@@ -72,7 +70,6 @@ import {
   Moon,
   Laptop,
   Bell,
-  Camera,
 } from 'lucide-react';
 
 export const App: React.FC = () => {
@@ -118,21 +115,6 @@ export const App: React.FC = () => {
   const handleUpdateCategories = (newCategories: CategoryItem[]) => {
     setCategories(newCategories);
     saveUserCategories(newCategories);
-  };
-
-  // Custom Habit Tracker Logo state (persisted)
-  const [customLogo, setCustomLogo] = useState<string>(() => {
-    return localStorage.getItem('habit_tracker_custom_logo') || '';
-  });
-  const [isCustomLogoModalOpen, setIsCustomLogoModalOpen] = useState(false);
-
-  const handleSaveCustomLogo = (newLogo: string) => {
-    setCustomLogo(newLogo);
-    if (newLogo) {
-      localStorage.setItem('habit_tracker_custom_logo', newLogo);
-    } else {
-      localStorage.removeItem('habit_tracker_custom_logo');
-    }
   };
 
   // Alarm state (persisted & hydrated from IndexedDB)
@@ -512,8 +494,6 @@ export const App: React.FC = () => {
         currentDateText={fullDateStr}
         onOpenAlarmModal={() => setIsAlarmModalOpen(true)}
         activeAlarmsCount={alarms.filter((a) => a.enabled).length}
-        customLogo={customLogo}
-        onOpenCustomLogo={() => setIsCustomLogoModalOpen(true)}
       />
 
       <div className="flex flex-1 pt-16">
@@ -535,8 +515,6 @@ export const App: React.FC = () => {
           onOpenEditProfile={() => setIsEditProfileOpen(true)}
           categories={categories}
           onManageCategories={() => setIsCategoryModalOpen(true)}
-          customLogo={customLogo}
-          onOpenCustomLogo={() => setIsCustomLogoModalOpen(true)}
         />
 
         {/* 3. Main Content Area */}
@@ -837,35 +815,6 @@ export const App: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Custom Logo Habit Tracker Card */}
-                <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-12 h-12 rounded-xl overflow-hidden flex items-center justify-center bg-blue-50 dark:bg-blue-950/60 ring-2 ring-blue-500/20 shadow-xs flex-shrink-0">
-                      <AppBrandLogo logo={customLogo} size="lg" showEditBadge={false} />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <span>Foto / Logo Habit Tracker</span>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 border border-purple-200/60 dark:border-purple-800/40">
-                          {customLogo ? 'Kustom' : 'Default'}
-                        </span>
-                      </h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-                        Kustomisasi foto atau ikon yang tampil di samping tulisan Habit Tracker pada menu & header
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsCustomLogoModalOpen(true)}
-                    className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-xl shadow-xs active:scale-95 transition-all flex items-center justify-center gap-2"
-                  >
-                    <Camera className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                    <span>Ganti Foto / Logo</span>
-                  </button>
-                </div>
-
                 {/* Cloud Sync & Google Calendar Card */}
                 <div className="bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-card flex flex-col gap-4">
                   <div className="flex items-center justify-between">
@@ -1012,13 +961,6 @@ export const App: React.FC = () => {
         alarm={ringingAlarm}
         onDismiss={handleDismissRingingAlarm}
         onSnooze={handleSnoozeRingingAlarm}
-      />
-
-      <CustomLogoModal
-        isOpen={isCustomLogoModalOpen}
-        onClose={() => setIsCustomLogoModalOpen(false)}
-        currentLogo={customLogo}
-        onSaveLogo={handleSaveCustomLogo}
       />
     </div>
   );

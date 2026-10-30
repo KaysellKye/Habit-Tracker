@@ -12,12 +12,10 @@ import {
   ChevronDown,
   Sun,
   Moon,
-  Camera,
   Mail,
 } from 'lucide-react';
 import { UserProfile } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
-import { AppBrandLogo } from '../common/AppBrandLogo';
 
 interface TopBarProps {
   onToggleSidebar?: () => void;
@@ -32,8 +30,6 @@ interface TopBarProps {
   currentDateText?: string;
   onOpenAlarmModal?: () => void;
   activeAlarmsCount?: number;
-  customLogo?: string;
-  onOpenCustomLogo?: () => void;
 }
 
 export const TopBar: React.FC<TopBarProps> = ({
@@ -49,8 +45,6 @@ export const TopBar: React.FC<TopBarProps> = ({
   currentDateText,
   onOpenAlarmModal,
   activeAlarmsCount = 0,
-  customLogo,
-  onOpenCustomLogo,
 }) => {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -83,11 +77,9 @@ export const TopBar: React.FC<TopBarProps> = ({
           )}
 
           <div className="flex items-center gap-2.5">
-            <AppBrandLogo
-              logo={customLogo}
-              size="lg"
-              onEdit={onOpenCustomLogo}
-            />
+            <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/25">
+              <Clock className="w-5 h-5" />
+            </div>
             <div className="flex flex-col">
               <span className="font-bold text-lg text-slate-900 dark:text-white tracking-tight leading-none">
                 Habit Tracker
@@ -237,18 +229,6 @@ export const TopBar: React.FC<TopBarProps> = ({
                       <User className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                       <span>Atur Nama & Foto Profil</span>
                     </button>
-                    {onOpenCustomLogo && (
-                      <button
-                        onClick={() => {
-                          setProfileDropdownOpen(false);
-                          onOpenCustomLogo();
-                        }}
-                        className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800/70 flex items-center gap-2 transition-colors"
-                      >
-                        <Camera className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                        <span>Kustomisasi Logo Menu</span>
-                      </button>
-                    )}
                     <button
                       onClick={() => {
                         toggleTheme();

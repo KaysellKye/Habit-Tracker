@@ -20,7 +20,6 @@ import {
 import { Category, UserProfile, CategoryItem } from '../../types';
 import { useTheme } from '../../context/ThemeContext';
 import { DEFAULT_CATEGORIES, COLOR_STYLES } from '../../utils/categoryUtils';
-import { AppBrandLogo } from '../common/AppBrandLogo';
 
 interface SidebarProps {
   activeTab: string;
@@ -40,8 +39,6 @@ interface SidebarProps {
   onOpenEditProfile: () => void;
   categories?: CategoryItem[];
   onManageCategories?: () => void;
-  customLogo?: string;
-  onOpenCustomLogo?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -58,8 +55,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenEditProfile,
   categories = DEFAULT_CATEGORIES,
   onManageCategories,
-  customLogo,
-  onOpenCustomLogo,
 }) => {
   const { isDark, toggleTheme } = useTheme();
 
@@ -101,11 +96,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Mobile Header in drawer */}
         <div className="flex items-center justify-between md:hidden pb-2 border-b border-slate-100 dark:border-slate-800">
           <div className="flex items-center gap-2">
-            <AppBrandLogo
-              logo={customLogo}
-              size="md"
-              onEdit={onOpenCustomLogo}
-            />
+            <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white">
+              <Sparkles className="w-4 h-4" />
+            </div>
             <span className="font-bold text-slate-900 dark:text-white">Habit Tracker</span>
           </div>
           <button
