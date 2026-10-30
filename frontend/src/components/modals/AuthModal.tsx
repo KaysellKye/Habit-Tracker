@@ -18,7 +18,6 @@ import {
   ArrowLeft,
   KeyRound,
   ShieldCheck,
-  Copy,
   RotateCcw,
 } from 'lucide-react';
 import {
@@ -55,14 +54,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [forgotStep, setForgotStep] = useState<'email' | 'otp' | 'reset' | 'success'>('email');
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotOtp, setForgotOtp] = useState('');
-  const [simulatedOtp, setSimulatedOtp] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [otpCountdown, setOtpCountdown] = useState(0);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-  const [otpCopied, setOtpCopied] = useState(false);
 
   // Direct Google Login mode (no Google Cloud Console required)
   const [showDirectGoogle, setShowDirectGoogle] = useState(false);
@@ -395,13 +392,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
 
     setLoading(true);
-    const safety = setTimeout(() => setLoading(false), 6000);
+    const safety = setTimeout(() => setLoading(false), 8000);
 
     try {
       const res = await apiForgotPasswordRequest(clean);
       clearTimeout(safety);
-      setSimulatedOtp(res.simulatedOtp || null);
-      setSuccessMsg(`Kode OTP 6-digit telah dikirim ke ${clean}.`);
+      setSuccessMsg(res.message || `Kode OTP 6-digit telah dikirim ke ${clean}. Silakan periksa Kotak Masuk atau folder Spam email Anda.`);
       setForgotStep('otp');
       setOtpCountdown(60);
     } catch (err: any) {
@@ -473,12 +469,6 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       clearTimeout(safety);
       setLoading(false);
     }
-  };
-
-  const handleCopyOtp = (otp: string) => {
-    navigator.clipboard.writeText(otp);
-    setOtpCopied(true);
-    setTimeout(() => setOtpCopied(false), 2000);
   };
 
   return (
@@ -996,34 +986,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {/* Step 2: Input OTP */}
             {forgotStep === 'otp' && (
               <form onSubmit={handleVerifyOtp} className="flex flex-col gap-3.5">
-                {/* Simulated Inbox Card for Instant Local Testing */}
-                {simulatedOtp && (
-                  <div className="p-3 bg-amber-50/90 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-2xl flex flex-col gap-1.5 animate-in fade-in duration-200">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
-                        <Mail className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-                        Kotak Masuk Email (OTP)
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setForgotOtp(simulatedOtp);
-                          handleCopyOtp(simulatedOtp);
-                        }}
-                        className="text-[11px] font-bold text-amber-700 dark:text-amber-300 hover:underline flex items-center gap-1"
-                      >
-                        {otpCopied ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                        <span>{otpCopied ? 'Tersalin & Diisi!' : 'Salin & Isi Otomatis'}</span>
-                      </button>
-                    </div>
-                    <div className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
-                      Kode OTP pemulihan kata sandi Anda:{' '}
-                      <span className="font-mono text-base font-extrabold tracking-widest text-amber-900 dark:text-amber-100 bg-amber-200/60 dark:bg-amber-900/60 px-2 py-0.5 rounded-lg ml-1">
-                        {simulatedOtp}
-                      </span>
-                    </div>
+                {/* Real Email Delivery Notice Banner */}
+                <div className="p-3 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200/80 dark:border-blue-900/60 rounded-2xl flex items-start gap-2.5 text-xs text-blue-900 dark:text-blue-200 animate-in fade-in duration-200">
+                  <Mail className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+                  <div className="flex flex-col gap-0.5">
+                    <p className="font-semibold text-xs leading-tight">
+                      Kode OTP Terkirim ke Email
+                    </p>
+                    <p className="text-[11px] text-blue-800/80 dark:text-blue-300/80 leading-relaxed">
+                      Silakan buka Kotak Masuk atau folder <strong>Spam</strong> email <strong>{forgotEmail}</strong>. Kode hanya berlaku selama 5 menit.
+                    </p>
                   </div>
-                )}
+                </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1">

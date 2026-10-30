@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { readDatabase, writeDatabase, User, StoredTask } from './db.js';
+import { sendOtpEmail } from './email.js';
 
 dotenv.config();
 
@@ -301,8 +302,8 @@ interface OTPRecord {
 }
 const otpStore = new Map<string, OTPRecord>();
 
-// 1. Request OTP
-app.post('/api/auth/forgot-password/request', (req: Request, res: Response) => {
+// 1. Request OTP (Generates random 6-digit OTP and sends real email via SMTP Gmail)
+app.post('/api/auth/forgot-password/request', async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email || typeof email !== 'string') {
@@ -319,18 +320,38 @@ app.post('/api/auth/forgot-password/request', (req: Request, res: Response) => {
       return;
     }
 
-    // Generate 6-digit OTP code
+    // Generate random 6-digit OTP code (100000 - 999999)
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes validity
+    const EXPIRY_MINUTES = 5;
+    const expiresAt = Date.now() + EXPIRY_MINUTES * 60 * 1000; // 5 minutes validity
 
+    // Send real email via SMTP Gmail
+    try {
+      await sendOtpEmail({
+        toEmail: cleanEmail,
+        otp,
+        userName: user.name || user.username || 'Pengguna',
+        expiryMinutes: EXPIRY_MINUTES,
+      });
+      console.log(`[AUTH-OTP] Real OTP email successfully dispatched to ${cleanEmail}`);
+    } catch (mailError: any) {
+      console.error(`[AUTH-OTP] Email delivery failed for ${cleanEmail}:`, mailError);
+      const isMissingConfig = mailError.message?.includes('Konfigurasi SMTP belum lengkap');
+      
+      res.status(500).json({
+        error: isMissingConfig
+          ? 'Layanan email belum dikonfigurasi di server. Harap tambahkan SMTP_EMAIL dan SMTP_PASSWORD (App Password) di file backend/.env.'
+          : `Gagal mengirim email OTP: ${mailError.message || 'Periksa koneksi SMTP atau Sandi Aplikasi Gmail Anda.'}`,
+      });
+      return;
+    }
+
+    // Save OTP to in-memory store only after successful dispatch
     otpStore.set(cleanEmail, { email: cleanEmail, otp, expiresAt });
 
-    console.log(`[AUTH-OTP] Generated OTP for ${cleanEmail}: ${otp}`);
-
     res.json({
-      message: `Kode OTP 6-digit telah dikirim ke alamat email ${cleanEmail}.`,
+      message: `Kode OTP 6-digit telah berhasil dikirim ke alamat email ${cleanEmail}. Silakan periksa Kotak Masuk atau folder Spam Anda.`,
       email: cleanEmail,
-      simulatedOtp: otp, // For local testing or in-app preview
     });
   } catch (error) {
     console.error('Forgot password request error:', error);

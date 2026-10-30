@@ -274,12 +274,11 @@ export async function apiLogin(body: {
 export async function apiForgotPasswordRequest(email: string): Promise<{
   message: string;
   email: string;
-  simulatedOtp?: string;
 }> {
   const cleanEmail = email.trim().toLowerCase();
 
   try {
-    const data = await request<{ message: string; email: string; simulatedOtp?: string }>(
+    const data = await request<{ message: string; email: string }>(
       '/auth/forgot-password/request',
       {
         method: 'POST',
@@ -288,28 +287,22 @@ export async function apiForgotPasswordRequest(email: string): Promise<{
     );
     return data;
   } catch (err: any) {
-    if (err instanceof ApiError && !err.isServerDown && err.status < 500) {
+    if (err instanceof ApiError && !err.isServerDown) {
       throw err;
     }
 
-    // Local fallback
+    // Check if user exists in local accounts if backend is offline
     const accounts = getLocalAccounts();
     const found = accounts.find((a) => a.user.email.toLowerCase() === cleanEmail);
     const isDemo = cleanEmail === 'andi@example.com';
 
     if (!found && !isDemo) {
-      throw new Error('Alamat email tidak terdaftar di Habit Tracker.');
+      throw new Error(err.message || 'Alamat email tidak terdaftar di Habit Tracker.');
     }
 
-    const localOtp = Math.floor(100000 + Math.random() * 900000).toString();
-    const expiry = Date.now() + 10 * 60 * 1000;
-    sessionStorage.setItem(`timeblock_otp_${cleanEmail}`, JSON.stringify({ otp: localOtp, expiry }));
-
-    return {
-      message: `Kode OTP 6-digit telah dikirim ke ${cleanEmail}.`,
-      email: cleanEmail,
-      simulatedOtp: localOtp,
-    };
+    throw new Error(
+      err.message || 'Gagal menghubungi server email. Pastikan backend aktif dan kredensial SMTP Gmail telah dikonfigurasi.'
+    );
   }
 }
 
