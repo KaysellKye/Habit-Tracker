@@ -106,7 +106,7 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-              Daily Progress / Progress Harian
+              Daily Progress
             </span>
             <span className="text-xs font-mono font-medium text-slate-500 dark:text-slate-400">
               {completedCount}/{totalCount} Selesai
