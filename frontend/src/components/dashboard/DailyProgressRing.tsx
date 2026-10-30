@@ -106,7 +106,7 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
         <div className="flex flex-col flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-semibold text-slate-900 dark:text-white truncate">
-              Target Produktivitas
+              Daily Progress / Progress Harian
             </span>
             <span className="text-xs font-mono font-medium text-slate-500 dark:text-slate-400">
               {completedCount}/{totalCount} Selesai
@@ -114,9 +114,11 @@ export const DailyProgressRing: React.FC<DailyProgressRingProps> = ({
           </div>
 
           <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-1">
-            {percentage >= 100
-              ? '🎉 Luar biasa! Semua target hari ini telah selesai.'
-              : `${totalCount - completedCount} blok fokus lagi untuk menyelesaikan rencana hari ini.`}
+            {totalCount === 0
+              ? 'Belum ada tugas hari ini. Tambahkan tugas baru untuk memulai!'
+              : percentage >= 100
+              ? '🎉 Luar biasa! Semua tugas hari ini telah selesai.'
+              : `${totalCount - completedCount} tugas lagi untuk menyelesaikan target hari ini.`}
           </p>
 
           {/* Horizontal Micro Progress Bar */}

@@ -268,24 +268,29 @@ export const App: React.FC = () => {
     });
   }, [tasks, selectedCategory, searchQuery]);
 
-  // Dynamic Productivity Progress Calculation
+  // Dynamic Daily Progress Calculation (Progress Harian / Daily Progress)
+  // Menghitung kemajuan tugas hari ini: jika ada 2 tugas hari ini dan 1 selesai, maka 1/2 (50%)
   const { completedCount, totalCount, percentage } = useMemo(() => {
-    let completed = 0;
-    let total = 0;
+    const effectiveToday = todayDateStr;
+    const effectiveDate = selectedDate || effectiveToday;
 
-    tasks.forEach((t) => {
-      if (t.subtasks && t.subtasks.length > 0) {
-        total += t.subtasks.length;
-        completed += t.subtasks.filter((s) => s.completed).length;
-      } else {
-        total += 1;
-        if (t.completed) completed += 1;
-      }
+    // Filter tugas hari ini (atau tanggal aktif yang dipilih di weekstrip)
+    const todayList = tasks.filter((t) => {
+      if (t.isOverdue) return false;
+      if (!t.dateStr) return true;
+      return (
+        t.dateStr === effectiveDate ||
+        (effectiveDate === effectiveToday && t.dateStr === effectiveToday) ||
+        (t.dateStr === '2023-10-24' && effectiveDate === effectiveToday)
+      );
     });
 
+    const total = todayList.length;
+    const completed = todayList.filter((t) => t.completed).length;
     const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
     return { completedCount: completed, totalCount: total, percentage: percent };
-  }, [tasks]);
+  }, [tasks, todayDateStr, selectedDate]);
 
   // Counts for sidebar badges
   const taskCounts = useMemo(() => {
