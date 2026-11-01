@@ -6,6 +6,8 @@ import {
   Flame,
   Award,
   ArrowUpRight,
+  LineChart,
+  BarChart3,
 } from 'lucide-react';
 import { Task, WeekDay } from '../../types';
 import { getCurrentWeekDays, formatFullDateIndonesian } from '../../utils/dateUtils';
@@ -28,6 +30,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
   tasks,
   weekDays,
 }) => {
+  const [chartType, setChartType] = useState<'line' | 'bar'>('line');
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [timeRange, setTimeRange] = useState<'week' | 'trend'>('week');
 
@@ -69,10 +72,10 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
 
   // SVG dimensions & padding with generous headroom so tooltips never clip
   const svgWidth = 620;
-  const svgHeight = 220;
+  const svgHeight = 230;
   const paddingLeft = 45;
   const paddingRight = 35;
-  const paddingTop = 36;
+  const paddingTop = 40;
   const paddingBottom = 45;
 
   const chartWidth = svgWidth - paddingLeft - paddingRight;
@@ -89,7 +92,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
     return { x, y, data: d };
   });
 
-  // Generate smooth cubic bezier SVG path
+  // Generate smooth cubic bezier SVG path for Line Chart
   const generateSmoothPath = (pts: { x: number; y: number }[]) => {
     if (pts.length === 0) return '';
     let path = `M ${pts[0].x},${pts[0].y}`;
@@ -122,19 +125,31 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
     Z
   `;
 
+  // Bar chart configurations
+  const barWidth = 32;
+
   return (
     <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 sm:p-6 border border-slate-100 dark:border-slate-800 shadow-card flex flex-col gap-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      {/* Top Header & Chart Option Switcher */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold">
-              <TrendingUp className="w-4 h-4" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold shadow-2xs">
+              {chartType === 'line' ? (
+                <LineChart className="w-5 h-5" />
+              ) : (
+                <BarChart3 className="w-5 h-5" />
+              )}
             </div>
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
-                Grafik Tren Produktivitas
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-white">
+                  Grafik Tren Produktivitas
+                </h3>
+                <span className="text-[10px] font-semibold font-mono uppercase px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800/50">
+                  {chartType === 'line' ? 'Chart Line' : 'Chart Bar'}
+                </span>
+              </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
                 Laju penyelesaian tugas harian sepanjang pekan
               </p>
@@ -142,30 +157,69 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
           </div>
         </div>
 
-        {/* Range Tabs */}
-        <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start sm:self-auto">
-          <button
-            type="button"
-            onClick={() => setTimeRange('week')}
-            className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-              timeRange === 'week'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-2xs font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            Pekan Ini (7 Hari)
-          </button>
-          <button
-            type="button"
-            onClick={() => setTimeRange('trend')}
-            className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
-              timeRange === 'trend'
-                ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-2xs font-bold'
-                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-            }`}
-          >
-            Kumulatif
-          </button>
+        {/* Controls: Chart Type Selector (Line vs Bar) & Time Range */}
+        <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+          {/* Chart Type Selector */}
+          <div className="flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl border border-slate-200/60 dark:border-slate-700/60 shadow-2xs">
+            <button
+              type="button"
+              onClick={() => {
+                setChartType('line');
+                setHoveredIndex(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                chartType === 'line'
+                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+              title="Tampilkan grafik garis"
+            >
+              <LineChart className="w-3.5 h-3.5" />
+              <span>Garis (Line)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setChartType('bar');
+                setHoveredIndex(null);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
+                chartType === 'bar'
+                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+              title="Tampilkan grafik batang"
+            >
+              <BarChart3 className="w-3.5 h-3.5" />
+              <span>Batang (Bar)</span>
+            </button>
+          </div>
+
+          {/* Time Range Tabs */}
+          <div className="hidden sm:flex items-center bg-slate-100 dark:bg-slate-800 p-1 rounded-xl">
+            <button
+              type="button"
+              onClick={() => setTimeRange('week')}
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                timeRange === 'week'
+                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-2xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              7 Hari
+            </button>
+            <button
+              type="button"
+              onClick={() => setTimeRange('trend')}
+              className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-all ${
+                timeRange === 'trend'
+                  ? 'bg-white dark:bg-slate-700 text-blue-600 dark:text-blue-400 shadow-2xs font-bold'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+              }`}
+            >
+              Kumulatif
+            </button>
+          </div>
         </div>
       </div>
 
@@ -211,16 +265,32 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
           className="w-full h-auto overflow-visible"
         >
           <defs>
-            {/* Linear Gradient for Area Fill */}
+            {/* Linear Gradient for Area Fill (Line Chart) */}
             <linearGradient id="productivityGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#2563EB" stopOpacity="0.28" />
+              <stop offset="0%" stopColor="#2563EB" stopOpacity="0.32" />
               <stop offset="60%" stopColor="#3B82F6" stopOpacity="0.08" />
               <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.0" />
             </linearGradient>
 
-            {/* Drop Shadow for points */}
+            {/* Gradient for Standard Bars */}
+            <linearGradient id="barGradientRegular" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3B82F6" />
+              <stop offset="100%" stopColor="#1D4ED8" />
+            </linearGradient>
+
+            {/* Gradient for Today's Bar */}
+            <linearGradient id="barGradientToday" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#60A5FA" />
+              <stop offset="100%" stopColor="#2563EB" />
+            </linearGradient>
+
+            {/* Drop Shadow for points & bars */}
             <filter id="pointShadow" x="-20%" y="-20%" width="140%" height="140%">
               <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#2563EB" floodOpacity="0.3" />
+            </filter>
+
+            <filter id="barShadow" x="-20%" y="-10%" width="140%" height="120%">
+              <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#2563EB" floodOpacity="0.25" />
             </filter>
           </defs>
 
@@ -253,103 +323,238 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
             );
           })}
 
-          {/* Smooth Gradient Area */}
-          <path d={areaPath} fill="url(#productivityGradient)" />
+          {/* ===================== MODE 1: CHART LINE ===================== */}
+          {chartType === 'line' && (
+            <>
+              {/* Smooth Gradient Area */}
+              <path d={areaPath} fill="url(#productivityGradient)" />
 
-          {/* Line Stroke */}
-          <path
-            d={linePath}
-            fill="none"
-            stroke="#2563EB"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+              {/* Line Stroke */}
+              <path
+                d={linePath}
+                fill="none"
+                stroke="#2563EB"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
 
-          {/* Interactive Data Points */}
-          {points.map((pt, i) => {
-            const isHovered = hoveredIndex === i;
-            const isToday = pt.data.isToday;
+              {/* Interactive Data Points */}
+              {points.map((pt, i) => {
+                const isHovered = hoveredIndex === i;
+                const isToday = pt.data.isToday;
 
-            return (
-              <g
-                key={i}
-                className="cursor-pointer"
-                onMouseEnter={() => setHoveredIndex(i)}
-                onMouseLeave={() => setHoveredIndex(null)}
-              >
-                {/* Invisible large hover hit area for easy mouse/touch targeting */}
-                <circle
-                  cx={pt.x}
-                  cy={pt.y}
-                  r={20}
-                  fill="transparent"
-                />
+                return (
+                  <g
+                    key={i}
+                    className="cursor-pointer"
+                    onMouseEnter={() => setHoveredIndex(i)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                  >
+                    {/* Large hover hit area */}
+                    <circle cx={pt.x} cy={pt.y} r={22} fill="transparent" />
 
-                {/* Vertical guide line on hover */}
-                {isHovered && (
-                  <line
-                    x1={pt.x}
-                    y1={paddingTop}
-                    x2={pt.x}
-                    y2={paddingTop + chartHeight}
-                    stroke="#93C5FD"
-                    strokeWidth="1.5"
-                    strokeDasharray="3 3"
-                  />
-                )}
+                    {/* Vertical guide line on hover */}
+                    {isHovered && (
+                      <line
+                        x1={pt.x}
+                        y1={paddingTop}
+                        x2={pt.x}
+                        y2={paddingTop + chartHeight}
+                        stroke="#93C5FD"
+                        strokeWidth="1.5"
+                        strokeDasharray="3 3"
+                      />
+                    )}
 
-                {/* Outer halo circle */}
-                <circle
-                  cx={pt.x}
-                  cy={pt.y}
-                  r={isHovered ? 8 : isToday ? 6 : 5}
-                  className="fill-white dark:fill-slate-900"
-                  stroke={isToday ? '#2563EB' : isHovered ? '#1D4ED8' : '#3B82F6'}
-                  strokeWidth={isHovered ? 3.5 : isToday ? 3 : 2}
-                  filter="url(#pointShadow)"
-                />
+                    {/* Outer halo circle */}
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={isHovered ? 8 : isToday ? 6 : 5}
+                      className="fill-white dark:fill-slate-900"
+                      stroke={isToday ? '#2563EB' : isHovered ? '#1D4ED8' : '#3B82F6'}
+                      strokeWidth={isHovered ? 3.5 : isToday ? 3 : 2}
+                      filter="url(#pointShadow)"
+                    />
 
-                {/* Inner center dot */}
-                <circle
-                  cx={pt.x}
-                  cy={pt.y}
-                  r={isHovered ? 3.5 : isToday ? 2.5 : 2}
-                  fill={isHovered ? '#1D4ED8' : '#2563EB'}
-                />
+                    {/* Inner center dot */}
+                    <circle
+                      cx={pt.x}
+                      cy={pt.y}
+                      r={isHovered ? 3.5 : isToday ? 2.5 : 2}
+                      fill={isHovered ? '#1D4ED8' : '#2563EB'}
+                    />
 
-                {/* Bottom X-axis day name & date */}
-                <text
-                  x={pt.x}
-                  y={paddingTop + chartHeight + 20}
-                  textAnchor="middle"
-                  className={isToday ? 'fill-blue-600 dark:fill-blue-400 font-bold' : 'fill-slate-600 dark:fill-slate-400 font-medium'}
-                  fontSize="12"
-                  fontFamily="Inter, sans-serif"
-                >
-                  {pt.data.dayName}
-                </text>
-                <text
-                  x={pt.x}
-                  y={paddingTop + chartHeight + 34}
-                  textAnchor="middle"
-                  className={isToday ? 'fill-blue-500 dark:fill-blue-400' : 'fill-slate-400 dark:fill-slate-500'}
-                  fontSize="10"
-                  fontFamily="JetBrains Mono, monospace"
-                  fontWeight="600"
-                >
-                  {pt.data.dayNumber}
-                </text>
-              </g>
-            );
-          })}
+                    {/* X-axis Day & Date */}
+                    <text
+                      x={pt.x}
+                      y={paddingTop + chartHeight + 20}
+                      textAnchor="middle"
+                      className={isToday ? 'fill-blue-600 dark:fill-blue-400 font-bold' : 'fill-slate-600 dark:fill-slate-400 font-medium'}
+                      fontSize="12"
+                      fontFamily="Inter, sans-serif"
+                    >
+                      {pt.data.dayName}
+                    </text>
+                    <text
+                      x={pt.x}
+                      y={paddingTop + chartHeight + 34}
+                      textAnchor="middle"
+                      className={isToday ? 'fill-blue-500 dark:fill-blue-400' : 'fill-slate-400 dark:fill-slate-500'}
+                      fontSize="10"
+                      fontFamily="JetBrains Mono, monospace"
+                      fontWeight="600"
+                    >
+                      {pt.data.dayNumber}
+                    </text>
+                  </g>
+                );
+              })}
+            </>
+          )}
+
+          {/* ===================== MODE 2: CHART BAR ===================== */}
+          {chartType === 'bar' && (
+            <>
+              {points.map((pt, i) => {
+                const isHovered = hoveredIndex === i;
+                const isToday = pt.data.isToday;
+                const completed = pt.data.completed;
+
+                // Calculate bar height & position
+                const barHeight = Math.max((completed / maxVal) * chartHeight, completed > 0 ? 8 : 4);
+                const barY = paddingTop + chartHeight - barHeight;
+                const barX = pt.x - barWidth / 2;
+
+                return (
+                  <g
+                    key={i}
+                    className="cursor-pointer"
+                    onMouseEnter={() => setHoveredIndex(i)}
+                    onMouseLeave={() => setHoveredIndex(null)}
+                  >
+                    {/* Background Column Track (Modern Apple Fitness Style) */}
+                    <rect
+                      x={barX}
+                      y={paddingTop}
+                      width={barWidth}
+                      height={chartHeight}
+                      rx={8}
+                      ry={8}
+                      className="fill-slate-100/80 dark:fill-slate-800/40"
+                    />
+
+                    {/* Active Bar Column */}
+                    {completed > 0 ? (
+                      <rect
+                        x={barX}
+                        y={barY}
+                        width={barWidth}
+                        height={barHeight}
+                        rx={8}
+                        ry={8}
+                        fill={isToday ? 'url(#barGradientToday)' : 'url(#barGradientRegular)'}
+                        filter="url(#barShadow)"
+                        className={`transition-all duration-200 ${
+                          isHovered ? 'brightness-110' : ''
+                        }`}
+                      />
+                    ) : (
+                      /* Zero state small pill dot at baseline */
+                      <rect
+                        x={barX + (barWidth - 12) / 2}
+                        y={paddingTop + chartHeight - 4}
+                        width={12}
+                        height={4}
+                        rx={2}
+                        ry={2}
+                        className="fill-slate-300 dark:fill-slate-700"
+                      />
+                    )}
+
+                    {/* Highlight outline ring on hover / today */}
+                    {isToday && (
+                      <rect
+                        x={barX - 1.5}
+                        y={paddingTop - 1.5}
+                        width={barWidth + 3}
+                        height={chartHeight + 3}
+                        rx={9.5}
+                        ry={9.5}
+                        fill="none"
+                        stroke="#3B82F6"
+                        strokeWidth="1.5"
+                        strokeDasharray="3 3"
+                        className="opacity-70"
+                      />
+                    )}
+
+                    {/* Number badge on top of bar */}
+                    {completed > 0 && (
+                      <text
+                        x={pt.x}
+                        y={barY - 6}
+                        textAnchor="middle"
+                        className={`font-mono text-[11px] font-bold ${
+                          isToday
+                            ? 'fill-blue-600 dark:fill-blue-400'
+                            : 'fill-slate-600 dark:fill-slate-300'
+                        }`}
+                      >
+                        {completed}
+                      </text>
+                    )}
+
+                    {/* Large transparent hit area for hover */}
+                    <rect
+                      x={barX - 6}
+                      y={paddingTop}
+                      width={barWidth + 12}
+                      height={chartHeight + 40}
+                      fill="transparent"
+                    />
+
+                    {/* X-axis Day & Date */}
+                    <text
+                      x={pt.x}
+                      y={paddingTop + chartHeight + 20}
+                      textAnchor="middle"
+                      className={isToday ? 'fill-blue-600 dark:fill-blue-400 font-bold' : 'fill-slate-600 dark:fill-slate-400 font-medium'}
+                      fontSize="12"
+                      fontFamily="Inter, sans-serif"
+                    >
+                      {pt.data.dayName}
+                    </text>
+                    <text
+                      x={pt.x}
+                      y={paddingTop + chartHeight + 34}
+                      textAnchor="middle"
+                      className={isToday ? 'fill-blue-500 dark:fill-blue-400' : 'fill-slate-400 dark:fill-slate-500'}
+                      fontSize="10"
+                      fontFamily="JetBrains Mono, monospace"
+                      fontWeight="600"
+                    >
+                      {pt.data.dayNumber}
+                    </text>
+                  </g>
+                );
+              })}
+            </>
+          )}
         </svg>
 
-        {/* Dynamic Tooltip: Strictly attached directly above the hovered point */}
+        {/* Dynamic Tooltip: Strictly attached directly above the hovered point/bar */}
         {hoveredIndex !== null && points[hoveredIndex] && (() => {
           const pt = points[hoveredIndex];
-          // If point is close to the top edge (headroom < 65px), flip tooltip below the point
-          const isNearTop = pt.y < 65;
+          const completed = pt.data.completed;
+          const barY =
+            chartType === 'bar'
+              ? paddingTop + chartHeight - Math.max((completed / maxVal) * chartHeight, completed > 0 ? 8 : 4)
+              : pt.y;
+
+          const targetY = chartType === 'bar' ? barY : pt.y;
+          const isNearTop = targetY < 65;
 
           return (
             <div
@@ -358,7 +563,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
               }`}
               style={{
                 left: `${(pt.x / svgWidth) * 100}%`,
-                top: `${(pt.y / svgHeight) * 100}%`,
+                top: `${(targetY / svgHeight) * 100}%`,
               }}
             >
               {/* Tooltip Card Box */}
@@ -373,7 +578,7 @@ export const ProductivityLineChart: React.FC<ProductivityLineChartProps> = ({
                 </span>
               </div>
 
-              {/* Triangle Arrow pointing strictly at the circle point */}
+              {/* Triangle Arrow */}
               <div
                 className={`w-0 h-0 border-x-4 border-x-transparent ${
                   isNearTop

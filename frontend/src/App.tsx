@@ -88,7 +88,18 @@ export const App: React.FC = () => {
   } = useRealtimeClock();
 
   // Navigation & UI state
+  const TAB_ORDER = ['hari-ini', 'tugas', 'kalender', 'analitik', 'pengaturan'];
   const [activeTab, setActiveTab] = useState<string>('hari-ini');
+  const [tabSlideDirection, setTabSlideDirection] = useState<'right' | 'left'>('right');
+
+  const handleTabChange = (newTab: string) => {
+    if (newTab === activeTab) return;
+    const currentIndex = TAB_ORDER.indexOf(activeTab);
+    const nextIndex = TAB_ORDER.indexOf(newTab);
+    setTabSlideDirection(nextIndex >= currentIndex ? 'right' : 'left');
+    setActiveTab(newTab);
+  };
+
   const [selectedCategory, setSelectedCategory] = useState<Category | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedDate, setSelectedDate] = useState<string>(() => getTodayDateStr());
@@ -506,7 +517,7 @@ export const App: React.FC = () => {
         {/* 2. Persistent Desktop Sidebar & Mobile Drawer */}
         <Sidebar
           activeTab={activeTab}
-          onTabChange={setActiveTab}
+          onTabChange={handleTabChange}
           isOpenMobile={isMobileSidebarOpen}
           onCloseMobile={() => setIsMobileSidebarOpen(false)}
           onOpenQuickAdd={() => {
@@ -525,8 +536,15 @@ export const App: React.FC = () => {
         />
 
         {/* 3. Main Content Area */}
-        <main className="flex-1 md:pl-64 flex flex-col min-w-0 pb-24 md:pb-12">
-          <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-6">
+        <main className="flex-1 md:pl-64 flex flex-col min-w-0 pb-28 md:pb-12 overflow-x-hidden">
+          <div
+            key={activeTab}
+            className={`w-full max-w-4xl mx-auto px-4 sm:px-6 py-4 flex flex-col gap-6 animate-in fade-in duration-200 ${
+              tabSlideDirection === 'right'
+                ? 'slide-in-from-right-6'
+                : 'slide-in-from-left-6'
+            }`}
+          >
             {/* TAB: HARI INI */}
             {activeTab === 'hari-ini' && (
               <>
@@ -578,7 +596,7 @@ export const App: React.FC = () => {
                 {/* 5. Timeline & Time-Blocking Hari Ini */}
                 <TimeBlockingSection
                   timeline={timeline}
-                  onOpenFullGrid={() => setActiveTab('kalender')}
+                  onOpenFullGrid={() => handleTabChange('kalender')}
                   onResolveConflict={(block) => setActiveConflict(block)}
                   onAddBlock={handleAddTimeBlock}
                   onEditBlock={handleEditTimeBlock}
@@ -903,7 +921,7 @@ export const App: React.FC = () => {
       {/* 4. Mobile Bottom Navigation Bar (Fixed) */}
       <MobileBottomNav
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={handleTabChange}
         onOpenQuickAdd={() => {
           setQuickAddInitialDate(todayDateStr);
           setIsQuickAddOpen(true);

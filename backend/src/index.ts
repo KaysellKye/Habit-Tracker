@@ -13,7 +13,24 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'timeblock_jwt_super_secret_key_2026';
 
-app.use(cors());
+// Konfigurasi CORS eksplisit agar frontend Vite (localhost:5173) diizinkan berkomunikasi dengan backend
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Izinkan request tanpa origin (seperti curl/Postman) atau origin frontend localhost (5173 / dll)
+      if (!origin || origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        callback(null, true);
+      } else {
+        callback(null, true); // Dev-friendly: izinkan semua origin di jaringan lokal
+      }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  })
+);
+
+app.options('*', cors());
 app.use(express.json({ limit: '10mb' })); // Support base64 profile pictures
 
 // Seed default demo user if DB empty
@@ -302,8 +319,18 @@ interface OTPRecord {
 }
 const otpStore = new Map<string, OTPRecord>();
 
+// Bersihkan OTP yang kedaluwarsa secara berkala setiap 5 menit agar tidak menumpuk di memori
+setInterval(() => {
+  const now = Date.now();
+  for (const [email, record] of otpStore.entries()) {
+    if (now > record.expiresAt) {
+      otpStore.delete(email);
+    }
+  }
+}, 5 * 60 * 1000).unref();
+
 // 1. Request OTP (Generates random 6-digit OTP and sends real email via SMTP Gmail)
-app.post('/api/auth/forgot-password/request', async (req: Request, res: Response) => {
+const handleForgotPasswordRequest = async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email || typeof email !== 'string') {
@@ -320,7 +347,7 @@ app.post('/api/auth/forgot-password/request', async (req: Request, res: Response
       return;
     }
 
-    // Generate random 6-digit OTP code (100000 - 999999)
+    // Generate random 6-digit numeric OTP code (100000 - 999999)
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const EXPIRY_MINUTES = 5;
     const expiresAt = Date.now() + EXPIRY_MINUTES * 60 * 1000; // 5 minutes validity
@@ -357,7 +384,11 @@ app.post('/api/auth/forgot-password/request', async (req: Request, res: Response
     console.error('Forgot password request error:', error);
     res.status(500).json({ error: 'Gagal memproses permintaan kode OTP.' });
   }
-});
+};
+
+// Route POST /api/auth/forgot-password and alias /api/auth/forgot-password/request
+app.post('/api/auth/forgot-password', handleForgotPasswordRequest);
+app.post('/api/auth/forgot-password/request', handleForgotPasswordRequest);
 
 // 2. Verify OTP
 app.post('/api/auth/forgot-password/verify', (req: Request, res: Response) => {

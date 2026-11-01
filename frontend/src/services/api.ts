@@ -1,6 +1,26 @@
 import { Task, UserProfile } from '../types';
 
-const API_BASE = (import.meta as any).env?.VITE_API_URL || '/api';
+// Basis URL API Backend:
+// - Jika VITE_API_URL ditentukan, gunakan nilai tersebut.
+// - Di lingkungan development / browser lokal, arahkan langsung ke backend lokal http://localhost:5000/api
+// - Fallback: relative path '/api' melalui Vite dev proxy
+export const getApiBase = (): string => {
+  const envUrl = (import.meta as any).env?.VITE_API_URL;
+  if (envUrl) {
+    return envUrl.replace(/\/$/, '');
+  }
+
+  if (typeof window !== 'undefined') {
+    const { hostname } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      return 'http://localhost:5000/api';
+    }
+  }
+
+  return '/api';
+};
+
+const API_BASE = getApiBase();
 
 const TOKEN_KEY = 'timeblock_token';
 const USER_KEY = 'timeblock_user';
@@ -100,16 +120,33 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  // Set timeout to 3 seconds so we don't hang if backend is not started
+  // Waktu timeout 15 detik agar koneksi SMTP Gmail pengiriman email OTP tidak diputus prematur
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 3000);
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+  const primaryUrl = `${API_BASE}${endpoint}`;
 
   try {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
-      ...options,
-      headers,
-      signal: controller.signal,
-    });
+    let response: Response;
+    try {
+      response = await fetch(primaryUrl, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+    } catch (primaryErr: any) {
+      // Jika request langsung ke http://localhost:5000/api gagal dan belum abort, coba fallback ke /api (Vite dev proxy)
+      if (primaryUrl.startsWith('http') && !controller.signal.aborted) {
+        response = await fetch(`/api${endpoint}`, {
+          ...options,
+          headers,
+          signal: controller.signal,
+        });
+      } else {
+        throw primaryErr;
+      }
+    }
+
     clearTimeout(timeoutId);
 
     const data = await response.json().catch(() => null);
@@ -134,7 +171,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
       throw err;
     }
     // Network error (Failed to fetch, AbortError, etc.)
-    throw new ApiError('Server backend tidak dapat dihubungi.', 0, true);
+    throw new ApiError('Server backend tidak dapat dihubungi. Pastikan server backend sedang aktif di port 5000.', 0, true);
   }
 }
 
@@ -279,7 +316,7 @@ export async function apiForgotPasswordRequest(email: string): Promise<{
 
   try {
     const data = await request<{ message: string; email: string }>(
-      '/auth/forgot-password/request',
+      '/auth/forgot-password',
       {
         method: 'POST',
         body: JSON.stringify({ email: cleanEmail }),
