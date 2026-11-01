@@ -1,23 +1,16 @@
 import { Task, UserProfile } from '../types';
 
 // Basis URL API Backend:
-// - Jika VITE_API_URL ditentukan, gunakan nilai tersebut.
-// - Di lingkungan development / browser lokal, arahkan langsung ke backend lokal http://localhost:5000/api
-// - Fallback: relative path '/api' melalui Vite dev proxy
+// - Mengarah ke server backend produksi: https://habit-tracker-e762.onrender.com/api
+// - Jika variabel VITE_API_URL ditentukan, gunakan nilai tersebut.
 export const getApiBase = (): string => {
   const envUrl = (import.meta as any).env?.VITE_API_URL;
   if (envUrl) {
-    return envUrl.replace(/\/$/, '');
+    const trimmed = envUrl.replace(/\/$/, '');
+    return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`;
   }
 
-  if (typeof window !== 'undefined') {
-    const { hostname } = window.location;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return 'http://localhost:5000/api';
-    }
-  }
-
-  return '/api';
+  return 'https://habit-tracker-e762.onrender.com/api';
 };
 
 const API_BASE = getApiBase();
@@ -135,7 +128,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
         signal: controller.signal,
       });
     } catch (primaryErr: any) {
-      // Jika request langsung ke http://localhost:5000/api gagal dan belum abort, coba fallback ke /api (Vite dev proxy)
+      // Jika request langsung gagal dan belum abort, coba fallback ke /api (Vite dev proxy)
       if (primaryUrl.startsWith('http') && !controller.signal.aborted) {
         response = await fetch(`/api${endpoint}`, {
           ...options,
@@ -171,7 +164,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
       throw err;
     }
     // Network error (Failed to fetch, AbortError, etc.)
-    throw new ApiError('Server backend tidak dapat dihubungi. Pastikan server backend sedang aktif di port 5000.', 0, true);
+    throw new ApiError('Server backend tidak dapat dihubungi. Pastikan server backend https://habit-tracker-e762.onrender.com sedang aktif.', 0, true);
   }
 }
 
